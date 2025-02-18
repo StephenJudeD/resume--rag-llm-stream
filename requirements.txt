@@ -15,8 +15,8 @@ faiss-cpu==1.7.3
 tiktoken==0.5.2
 protobuf==3.20.0
 numpy>=1.22.0
-pandas>=2.0.0  # Added for data handling
-python-dotenv>=1.0.0  # For environment variables
+pandas>=2.0.0
+python-dotenv>=1.0.0
 
 # Production Server
-gunicorn>=21.2.0  # For production deployment
+gunicorn>=21.2.0
