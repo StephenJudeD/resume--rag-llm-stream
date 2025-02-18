@@ -13,8 +13,13 @@ INDEX_PATH = os.getenv("GCS_INDEX_PATH")
 
 class CVQueryApp:
     def __init__(self):
-        self.client = OpenAI()
-        self.embeddings = OpenAIEmbeddings(model="text-embedding-3-large")
+        # FIX: Properly initialize OpenAI client with API key
+        api_key = os.getenv("OPENAI_API_KEY")
+        self.client = OpenAI(api_key=api_key)  # THIS WAS THE MAIN ERROR
+        self.embeddings = OpenAIEmbeddings(
+            model="text-embedding-3-large",
+            openai_api_key=api_key  # Add API key here too
+        )
         self.vector_store = self._load_vector_store()
         
     def _load_vector_store(self):
@@ -67,6 +72,7 @@ class CVQueryApp:
 
 # Create Dash app
 app = dash.Dash(__name__)
+server = app.server
 
 # Custom CSS
 app.index_string = '''
