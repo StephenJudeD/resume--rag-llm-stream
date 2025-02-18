@@ -17,18 +17,17 @@ class CVQueryApp:
             api_key = os.getenv("OPENAI_API_KEY")
             if not api_key:
                 raise ValueError("OPENAI_API_KEY not found!")
-            
-            # Fixed OpenAI client initialization
-            self.client = OpenAI()
-            
-            # Fixed embeddings initialization
+
+            # Initialize OpenAI client - no proxies argument needed
+            self.client = OpenAI(api_key=api_key)  # Pass API key directly
+
             self.embeddings = OpenAIEmbeddings(
                 model="text-embedding-3-large",
-                openai_api_key=api_key
+                openai_api_key=api_key # Pass API key here as well.
             )
-            
+
             self.vector_store = self._load_vector_store()
-            
+
         except Exception as e:
             print(f"Error initializing CVQueryApp: {str(e)}")
             raise
