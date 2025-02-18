@@ -1,22 +1,20 @@
 # Core Web Framework
-dash==2.14.2
-dash-core-components==2.0.0
-dash-html-components==2.0.0
+dash
+dash-core-components
+dash-html-components
 
 # RAG and AI Components
-openai==1.11.1
-langchain-openai==0.0.5
-langchain-community==0.0.16
-langchain-core==0.1.17
-google-cloud-storage==2.14.0
-faiss-cpu==1.7.3
+openai
+langchain-openai
+langchain-community
+langchain-core
+google-cloud-storage
+faiss-cpu
 
 # Utils and Dependencies
-tiktoken==0.5.2
-protobuf==3.20.0
-numpy>=1.22.0
-pandas>=2.0.0
-python-dotenv>=1.0.0
+tiktoken
+protobuf
+python-dotenv
 
 # Production Server
 gunicorn
