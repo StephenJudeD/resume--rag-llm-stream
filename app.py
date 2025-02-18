@@ -20,8 +20,7 @@ class CVQueryApp:
             
             # Fixed OpenAI client initialization
             self.client = OpenAI(
-                api_key=api_key,
-                default_headers={"Authorization": f"Bearer {api_key}"}
+                api_key=api_key
             )
             
             # Fixed embeddings initialization
