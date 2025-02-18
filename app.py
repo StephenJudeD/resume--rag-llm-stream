@@ -13,14 +13,28 @@ INDEX_PATH = os.getenv("GCS_INDEX_PATH")
 
 class CVQueryApp:
     def __init__(self):
-        # FIX: Properly initialize OpenAI client with API key
-        api_key = os.getenv("OPENAI_API_KEY")
-        self.client = OpenAI(api_key=api_key)  # THIS WAS THE MAIN ERROR
-        self.embeddings = OpenAIEmbeddings(
-            model="text-embedding-3-large",
-            openai_api_key=api_key  # Add API key here too
-        )
-        self.vector_store = self._load_vector_store()
+        try:
+            api_key = os.getenv("OPENAI_API_KEY")
+            if not api_key:
+                raise ValueError("OPENAI_API_KEY not found!")
+            
+            # Fixed OpenAI client initialization
+            self.client = OpenAI(
+                api_key=api_key,
+                default_headers={"Authorization": f"Bearer {api_key}"}
+            )
+            
+            # Fixed embeddings initialization
+            self.embeddings = OpenAIEmbeddings(
+                model="text-embedding-3-large",
+                openai_api_key=api_key
+            )
+            
+            self.vector_store = self._load_vector_store()
+            
+        except Exception as e:
+            print(f"Error initializing CVQueryApp: {str(e)}")
+            raise
         
     def _load_vector_store(self):
         storage_client = storage.Client()
