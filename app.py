@@ -131,18 +131,159 @@ app.index_string = '''
 <html>
     <head>
         {%metas%}
-        <title>Stephen's CV Chat Assistant</title>
+        <title>Stephen's Professional CV Assistant</title>
         {%favicon%}
         {%css%}
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
         <style>
-            .chat-container {max-width: 800px; margin: 0 auto; padding: 20px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;}
-            .chat-box {border: 1px solid #ddd; border-radius: 10px; padding: 20px; margin-bottom: 20px; background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1);}
-            .message-input {width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; margin-bottom: 10px;}
-            .submit-button {background-color: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; transition: background-color 0.3s;}
-            .submit-button:hover {background-color: #0056b3;}
-            .message {padding: 10px; margin: 5px 0; border-radius: 5px;}
-            .user-message {background-color: #e3f2fd; margin-left: 20%;}
-            .bot-message {background-color: #f5f5f5; margin-right: 20%;}
+            :root {
+                --primary-color: #2563eb;
+                --secondary-color: #3b82f6;
+                --bg-color: #f8fafc;
+                --user-bubble: #3b82f6;
+                --bot-bubble: #e2e8f0;
+            }
+            
+            * {
+                font-family: 'Inter', sans-serif;
+                box-sizing: border-box;
+            }
+            
+            body {
+                background-color: var(--bg-color);
+                margin: 0;
+                padding: 20px;
+            }
+            
+            .chat-container {
+                max-width: 800px;
+                margin: 20px auto;
+                background: white;
+                border-radius: 16px;
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+                overflow: hidden;
+            }
+            
+            .header {
+                background: var(--primary-color);
+                padding: 1.5rem;
+                color: white;
+                border-radius: 16px 16px 0 0;
+            }
+            
+            .chat-history {
+                padding: 1.5rem;
+                height: 60vh;
+                overflow-y: auto;
+                background: linear-gradient(to bottom right, #f8fafc, #f1f5f9);
+            }
+            
+            .message-container {
+                display: flex;
+                gap: 12px;
+                margin-bottom: 1.5rem;
+            }
+            
+            .user-message-container {
+                flex-direction: row-reverse;
+            }
+            
+            .message-bubble {
+                max-width: 70%;
+                padding: 1rem 1.25rem;
+                border-radius: 1rem;
+                position: relative;
+                line-height: 1.5;
+                font-size: 0.875rem;
+            }
+            
+            .user-bubble {
+                background: var(--user-bubble);
+                color: white;
+                border-radius: 1rem 1rem 0 1rem;
+            }
+            
+            .bot-bubble {
+                background: var(--bot-bubble);
+                color: #1e293b;
+                border-radius: 1rem 1rem 1rem 0;
+            }
+            
+            .input-container {
+                display: flex;
+                gap: 12px;
+                padding: 1.5rem;
+                background: white;
+                border-top: 1px solid #e2e8f0;
+            }
+            
+            .question-chip {
+                display: inline-block;
+                padding: 8px 16px;
+                background: #e2e8f0;
+                border-radius: 8px;
+                margin: 4px;
+                cursor: pointer;
+                transition: all 0.2s;
+                font-size: 0.875rem;
+            }
+            
+            .question-chip:hover {
+                background: var(--secondary-color);
+                color: white;
+                transform: translateY(-2px);
+            }
+            
+            .input-field {
+                flex: 1;
+                padding: 12px;
+                border: 2px solid #e2e8f0;
+                border-radius: 8px;
+                font-size: 1rem;
+                transition: border-color 0.2s;
+            }
+            
+            .input-field:focus {
+                outline: none;
+                border-color: var(--primary-color);
+            }
+            
+            .submit-button {
+                background: var(--primary-color);
+                color: white;
+                border: none;
+                padding: 12px 24px;
+                border-radius: 8px;
+                cursor: pointer;
+                transition: all 0.2s;
+                font-weight: 500;
+            }
+            
+            .submit-button:hover {
+                background: var(--secondary-color);
+                transform: translateY(-1px);
+            }
+            
+            .typing-indicator {
+                display: inline-flex;
+                gap: 4px;
+                padding: 8px 16px;
+                background: var(--bot-bubble);
+                border-radius: 8px;
+            }
+            
+            .dot {
+                width: 6px;
+                height: 6px;
+                background: #64748b;
+                border-radius: 50%;
+                animation: typing 1.4s infinite;
+            }
+            
+            @keyframes typing {
+                0%, 100% { transform: translateY(0); }
+                50% { transform: translateY(-4px); }
+            }
         </style>
     </head>
     <body>
@@ -152,52 +293,92 @@ app.index_string = '''
 </html>
 '''
 
-cv_app = CVQueryApp()
-
 app.layout = html.Div([
     html.Div([
-        html.H1("Stephen's CV Chat Assistant 🤖", style={'textAlign': 'center', 'color': '#2c3e50'}),
         html.Div([
-            html.P("Ask me anything about Stephen's experience, skills, or background!",
-                   style={'textAlign': 'center', 'color': '#7f8c8d'}),
-        ], className='chat-box'),
-        html.Div(id='chat-history', className='chat-box'),
-        dcc.Input(id='user-input', type='text', placeholder='Type your question here...', className='message-input'),
-        html.Button('Ask', id='submit-button', className='submit-button'),
-        dcc.Store(id='chat-store', data=[]),
-        html.Div([
-            html.H3("Example Questions:", style={'color': '#2c3e50'}),
-            html.Ul([
-                html.Li("What is Stephen's current role and company?"),
-                html.Li("What are his key technical skills?"),
-                html.Li("What projects has he worked on?"),
-                html.Li("What books has Stephen read?"),
-                html.Li("What makes him a good data scientist?"),
-            ])
-        ], className='chat-box')
-    ], className='chat-container')
+            html.H1("Stephen's Professional Profile Assistant", className='header'),
+            html.Div([
+                html.P("AI-powered CV analysis for hiring managers", style={'marginBottom': '0.5rem'}),
+                html.Small("Ask about experience, technical skills, projects, or book recommendations"),
+            ], style={'padding': '0 1.5rem', 'marginTop': '1rem'}),
+            
+            html.Div(id='chat-history', className='chat-history'),
+            
+            html.Div([
+                dcc.Input(
+                    id='user-input',
+                    type='text',
+                    placeholder='Ask about experience, skills, or projects...',
+                    className='input-field',
+                    autoComplete='off'
+                ),
+                html.Button('Send →', id='submit-button', className='submit-button'),
+            ], className='input-container'),
+            
+            html.Div([
+                html.Div("Example Questions:", style={'fontWeight': '500', 'marginBottom': '0.5rem'}),
+                html.Div([
+                    html.Span("Current role and company?", className='question-chip'),
+                    html.Span("Technical skills?", className='question-chip'),
+                    html.Span("Recent projects?", className='question-chip'),
+                    html.Span("Book recommendations?", className='question-chip'),
+                ], style={'marginBottom': '1rem'}),
+            ], style={'padding': '0 1.5rem', 'marginBottom': '1.5rem'}),
+            
+            dcc.Store(id='chat-store', data=[]),
+            dcc.Interval(id='fake-typing', interval=1000, disabled=True),
+        ], className='chat-container')
+    ])
 ])
 
 @app.callback(
-    [Output('chat-history', 'children'), Output('chat-store', 'data'), Output('user-input', 'value')],
-    [Input('submit-button', 'n_clicks')],
-    [State('user-input', 'value'), State('chat-store', 'data')],
+    [Output('chat-history', 'children'), 
+     Output('chat-store', 'data'),
+     Output('user-input', 'value'),
+     Output('fake-typing', 'disabled')],
+    [Input('submit-button', 'n_clicks'),
+     Input('fake-typing', 'n_intervals')],
+    [State('user-input', 'value'),
+     State('chat-store', 'data')],
     prevent_initial_call=True
 )
-def update_chat(n_clicks, user_input, chat_history):
-    if not user_input:
-        return dash.no_update, dash.no_update, dash.no_update
-
-    response = cv_app.query(user_input)
-    chat_history.append({'user': user_input, 'bot': response})
-    chat_messages = []
-    for chat in chat_history:
-        chat_messages.extend([
-            html.Div(chat['user'], className='message user-message'),
-            html.Div(chat['bot'], className='message bot-message')
-        ])
-
-    return chat_messages, chat_history, ''
+def update_chat(n_clicks, n_intervals, user_input, chat_history):
+    ctx = dash.callback_context
+    if not ctx.triggered:
+        return dash.no_update, dash.no_update, dash.no_update, dash.no_update
+    
+    if 'submit-button' in ctx.triggered[0]['prop_id']:
+        response = cv_app.query(user_input)
+        chat_history.append({'user': user_input, 'bot': response})
+        
+        chat_messages = []
+        for chat in chat_history:
+            chat_messages.extend([
+                html.Div([
+                    html.Div(chat['user'], className='message-bubble user-bubble'),
+                ], className='message-container user-message-container'),
+                html.Div([
+                    html.Div(chat['bot'], className='message-bubble bot-bubble'),
+                ], className='message-container'),
+            ])
+        
+        # Add temporary typing indicator
+        chat_messages.append(
+            html.Div([
+                html.Div([
+                    html.Div(className='dot'),
+                    html.Div(className='dot'),
+                    html.Div(className='dot'),
+                ], className='typing-indicator')
+            ], className='message-container')
+        )
+        
+        return chat_messages, chat_history, '', False
+    
+    elif 'fake-typing' in ctx.triggered[0]['prop_id']:
+        return dash.no_update, dash.no_update, dash.no_update, True
+    
+    return dash.no_update, dash.no_update, dash.no_update, True
 
 if __name__ == '__main__':
     port = int(os.getenv("PORT", 7860))
