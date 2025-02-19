@@ -154,10 +154,13 @@ with gr.Blocks(title="CV Assistant", theme=gr.themes.Soft()) as demo:
     msg = gr.Textbox(label="Your Question")
     clear = gr.Button("Clear")
     
-    msg.submit(cv_app.query, msg, chatbot)
-    clear.click(lambda: None, None, chatbot)
+    async def chat_wrapper(message, history):
+        bot_message = await cv_app.query(message)
+        history.append((message, bot_message))
+        return history
 
-app = demo.app
+    msg.submit(chat_wrapper, [msg, chatbot], [chatbot])
+    clear.click(lambda: [], None, chatbot)
 
 if __name__ == "__main__":
     demo.launch(
