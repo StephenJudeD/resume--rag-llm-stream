@@ -22,42 +22,54 @@ if os.getenv("GOOGLE_CREDENTIALS_JSON"):
 else:
     logger.error("GOOGLE_CREDENTIALS_JSON environment variable not set.")
 
-def download_index(bucket_name, source_blob_name, destination_file_name):
+
+
+
+def download_index_folder(bucket_name, source_folder, destination_dir):
+    """Download all files in a GCS folder to a local directory"""
     storage_client = storage.Client()
     bucket = storage_client.bucket(bucket_name)
-    blob = bucket.blob(source_blob_name)
-    blob.download_to_filename(destination_file_name)
-    logger.debug(f"Blob '{source_blob_name}' downloaded to '{destination_file_name}'.")
+    
+    # Create destination directory if it doesn't exist
+    os.makedirs(destination_dir, exist_ok=True)
+    
+    # List all blobs in the folder
+    blobs = bucket.list_blobs(prefix=source_folder)
+    
+    for blob in blobs:
+        # Skip directories (they have trailing '/')
+        if blob.name.endswith('/'):
+            continue
+            
+        # Create local file path
+        local_path = os.path.join(destination_dir, os.path.basename(blob.name))
+        
+        # Download the file
+        blob.download_to_filename(local_path)
+        logger.debug(f"Downloaded {blob.name} to {local_path}")
 
 def load_vector_store(embeddings):
-    # Using environment variables (fallback to defaults if not set)
     bucket_name = os.getenv("GCS_BUCKET_NAME", "ragsd-resume-bucket")
     index_path = os.getenv("GCS_INDEX_PATH", "faiss_indexes/cv_index_text-embedding-3-large")
-    destination_folder = "/tmp"
+    destination_folder = "/tmp/faiss_index"
     
-    # WARNING: Ensure that your index is either one file or a folder containing all necessary parts
-    local_index_path = os.path.join(destination_folder, "faiss_index")
+    # Download all files in the index folder
+    download_index_folder(bucket_name, index_path, destination_folder)
     
-    download_index(bucket_name, index_path, local_index_path)
-    
-    # Debug: List contents of /tmp (or destination folder) to verify expected files/folders
+    # Debug directory contents
     contents = os.listdir(destination_folder)
-    logger.debug(f"Contents of {destination_folder}: {contents}")
+    logger.debug(f"Index files downloaded: {contents}")
     
-    if not os.path.exists(local_index_path):
-        logger.error("The FAISS index does not exist at the expected location.")
-        raise FileNotFoundError(f"File/Directory not found: {local_index_path}")
-    
-    # Load the FAISS vector store from the downloaded file/folder
+    # Load FAISS from the directory
     try:
         vector_store = FAISS.load_local(
-            local_index_path,
+            destination_folder,
             embeddings,
             allow_dangerous_deserialization=True
         )
         return vector_store
     except Exception as error:
-        logger.error("Error loading the FAISS index. Verify that the index structure is correct.")
+        logger.error("Error loading index. Verify downloaded files match FAISS requirements.")
         raise error
 
 class CVQueryApp:
