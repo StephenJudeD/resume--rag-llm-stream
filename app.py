@@ -7,10 +7,12 @@ from langchain_openai import OpenAIEmbeddings
 from langchain_community.vectorstores import FAISS
 from google.cloud import storage
 import logging
+import os
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
+# Write temporary credentials file from env var
 if os.getenv("GOOGLE_CREDENTIALS_JSON"):
     with tempfile.NamedTemporaryFile(mode="w", delete=False) as temp:
         temp.write(os.environ["GOOGLE_CREDENTIALS_JSON"])
@@ -25,19 +27,38 @@ def download_index(bucket_name, source_blob_name, destination_file_name):
     bucket = storage_client.bucket(bucket_name)
     blob = bucket.blob(source_blob_name)
     blob.download_to_filename(destination_file_name)
-    logger.debug(f"Blob {source_blob_name} downloaded to {destination_file_name}.")
+    logger.debug(f"Blob '{source_blob_name}' downloaded to '{destination_file_name}'.")
 
 def load_vector_store(embeddings):
-    bucket_name = "ragsd-resume-bucket"
-    index_path = "faiss_indexes/cv_index_text-embedding-3-large"
+    # Using environment variables (fallback to defaults if not set)
+    bucket_name = os.getenv("GCS_BUCKET_NAME", "ragsd-resume-bucket")
+    index_path = os.getenv("GCS_INDEX_PATH", "faiss_indexes/cv_index_text-embedding-3-large")
     destination_folder = "/tmp"
-    destination_file_name = f"{destination_folder}/faiss_index"
-    download_index(bucket_name, index_path, destination_file_name)
-    return FAISS.load_local(
-        destination_file_name,
-        embeddings,
-        allow_dangerous_deserialization=True
-    )
+    
+    # WARNING: Ensure that your index is either one file or a folder containing all necessary parts
+    local_index_path = os.path.join(destination_folder, "faiss_index")
+    
+    download_index(bucket_name, index_path, local_index_path)
+    
+    # Debug: List contents of /tmp (or destination folder) to verify expected files/folders
+    contents = os.listdir(destination_folder)
+    logger.debug(f"Contents of {destination_folder}: {contents}")
+    
+    if not os.path.exists(local_index_path):
+        logger.error("The FAISS index does not exist at the expected location.")
+        raise FileNotFoundError(f"File/Directory not found: {local_index_path}")
+    
+    # Load the FAISS vector store from the downloaded file/folder
+    try:
+        vector_store = FAISS.load_local(
+            local_index_path,
+            embeddings,
+            allow_dangerous_deserialization=True
+        )
+        return vector_store
+    except Exception as error:
+        logger.error("Error loading the FAISS index. Verify that the index structure is correct.")
+        raise error
 
 class CVQueryApp:
     def __init__(self):
@@ -47,12 +68,14 @@ class CVQueryApp:
                 raise ValueError("OPENAI_API_KEY not found!")
     
             self.client = OpenAI(api_key=api_key)
+    
             self.embeddings = OpenAIEmbeddings(
                 model="text-embedding-3-large",
                 openai_api_key=api_key
             )
+    
             self.vector_store = load_vector_store(self.embeddings)
-            
+    
         except Exception as e:
             logger.error(f"Error initializing CVQueryApp: {str(e)}")
             raise
@@ -152,7 +175,7 @@ app.layout = html.Div([
 def update_chat(n_clicks, user_input, chat_history):
     if not user_input:
         return dash.no_update, dash.no_update, dash.no_update
-    
+
     response = cv_app.query(user_input)
     chat_history.append({'user': user_input, 'bot': response})
     chat_messages = []
@@ -161,7 +184,7 @@ def update_chat(n_clicks, user_input, chat_history):
             html.Div(chat['user'], className='message user-message'),
             html.Div(chat['bot'], className='message bot-message')
         ])
-    
+
     return chat_messages, chat_history, ''
 
 if __name__ == '__main__':
