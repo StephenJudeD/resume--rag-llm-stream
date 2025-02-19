@@ -128,27 +128,187 @@ server = app.server
 
 app.index_string = '''
 <!DOCTYPE html>
-<html>
-    <head>
-        {%metas%}
-        <title>Stephen's CV Chat Assistant</title>
-        {%favicon%}
-        {%css%}
-        <style>
-            .chat-container {max-width: 800px; margin: 0 auto; padding: 20px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;}
-            .chat-box {border: 1px solid #ddd; border-radius: 10px; padding: 20px; margin-bottom: 20px; background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1);}
-            .message-input {width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; margin-bottom: 10px;}
-            .submit-button {background-color: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; transition: background-color 0.3s;}
-            .submit-button:hover {background-color: #0056b3;}
-            .message {padding: 10px; margin: 5px 0; border-radius: 5px;}
-            .user-message {background-color: #e3f2fd; margin-left: 20%;}
-            .bot-message {background-color: #f5f5f5; margin-right: 20%;}
-        </style>
-    </head>
-    <body>
-        {%app_entry%}
-        <footer>{%config%}{%scripts%}{%renderer%}</footer>
-    </body>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stephen's CV Chat Assistant</title>
+
+    <!-- Inline CSS -->
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f4f6f9, #e0e7ff);
+            color: #2c3e50;
+            margin: 0;
+            padding: 0;
+        }
+        .chat-container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+        .chat-box {
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background: #ffffff;
+            transition: box-shadow 0.3s;
+        }
+        .chat-box:hover {
+            box-shadow: 0 4px 30px rgba(0,0,0,0.3);
+        }
+        .message-input {
+            width: calc(100% - 22px);
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            transition: border-color 0.3s;
+        }
+        .message-input:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+        .submit-button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        .submit-button:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+        }
+        .message {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        .user-message {
+            background-color: #e3f2fd;
+            margin-left: 20%;
+        }
+        .bot-message {
+            background-color: #f5f5f5;
+            margin-right: 20%;
+        }
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #007bff;
+            border-top: 3px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .example-question {
+            cursor: pointer;
+            color: #007bff;
+            text-decoration: underline;
+            margin: 5px 0;
+        }
+        .example-question:hover {
+            color: #0056b3;
+        }
+        /* Progress Bar Styles */
+        .progress-container {
+            width: 100%;
+            background: #ddd;
+            border-radius: 5px;
+            height: 5px;
+            margin-top: 10px;
+            display: none; /* Hidden by default */
+        }
+        .progress-bar {
+            height: 100%;
+            width: 0;
+            background: #007bff;
+            border-radius: 5px;
+            transition: width 0.5s ease;
+        }
+    </style>
+</head>
+<body>
+    <!-- App Entry Point -->
+    <div class="chat-container">
+        <h1 style="text-align: center;">Stephen's CV Chat Assistant 🤖</h1>
+        <div class="chat-box">
+            <p style="text-align: center; color: #7f8c8d;">Ask me anything about Stephen's experience, skills, or background!</p>
+            <div id="chat-history"></div>
+            <input id="user-input" type="text" placeholder="Type your question here..." class="message-input">
+            <button id="submit-button" class="submit-button">Ask</button>
+            <div id="loading" style="display:none;" class="loading"></div>
+            <div class="progress-container" id="progress-container">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+            <div>
+                <h3 style="color: #2c3e50;">Example Questions:</h3>
+                <ul>
+                    <li class="example-question" onclick="populateInput('What is Stephen\'s current role and company?')">What is Stephen's current role and company?</li>
+                    <li class="example-question" onclick="populateInput('What are his key technical skills?')">What are his key technical skills?</li>
+                    <li class="example-question" onclick="populateInput('What projects has he worked on?')">What projects has he worked on?</li>
+                    <li class="example-question" onclick="populateInput('What books has Stephen read?')">What books has Stephen read?</li>
+                    <li class="example-question" onclick="populateInput('What makes him a good data scientist?')">What makes him a good data scientist?</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Inline JavaScript -->
+    <script>
+        function populateInput(question) {
+            document.getElementById('user-input').value = question;
+        }
+
+        document.getElementById('submit-button').onclick = function() {
+            const userInput = document.getElementById('user-input').value;
+            if (!userInput) return;
+
+            // Show loading spinner and progress bar
+            document.getElementById('loading').style.display = 'inline-block';
+            document.getElementById('progress-container').style.display = 'block';
+            document.getElementById('progress-bar').style.width = '0%'; // Reset progress bar
+
+            // Simulate sending message
+            const chatHistory = document.getElementById('chat-history');
+            chatHistory.innerHTML += `<div class='message user-message'>${userInput}</div>`;
+            document.getElementById('user-input').value = '';
+
+            // Simulate bot response
+            const progressBar = document.getElementById('progress-bar');
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += 10; // Increase progress
+                progressBar.style.width = progress + '%'; // Update progress bar
+                if (progress >= 100) {
+                    clearInterval(interval); // Stop the interval when complete
+                }
+            }, 100); // Update every 100ms
+
+            setTimeout(() => {
+                const botResponse = "This is a simulated response."; // Replace with actual bot response
+                chatHistory.innerHTML += `<div class='message bot-message'>${botResponse}</div>`;
+                // Hide loading spinner and progress bar
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('progress-container').style.display = 'none';
+                chatHistory.scrollTop = chatHistory.scrollHeight; // Scroll to bottom
+            }, 1000); // Simulate delay
+        };
+    </script>
+</body>
 </html>
 '''
 
