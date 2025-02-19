@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 def download_index(bucket_name, source_blob_name, destination_file_name):
     """Downloads a blob from the bucket."""
-    # Set the environment variable for application credentials
+    # Set the environment variable for application credentials exactly like before
     os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'google-credentials.json'
     
     storage_client = storage.Client()
@@ -23,7 +23,6 @@ def download_index(bucket_name, source_blob_name, destination_file_name):
     logger.debug(f"Blob {source_blob_name} downloaded to {destination_file_name}.")
 
 def load_vector_store(embeddings):
-    """Loads vector store from GCS bucket"""
     bucket_name = "ragsd-resume-bucket"
     index_path = "faiss_indexes/cv_index_text-embedding-3-large"
     destination_folder = "/tmp"
