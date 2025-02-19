@@ -1,10 +1,20 @@
-gradio==4.16.0
-openai==1.12.0
-langchain-openai==0.0.5
+# Core Web Framework
+dash
+dash-core-components
+dash-html-components
+
+# RAG and AI Components
+openai
+langchain-openai
+langchain-community
+langchain-core
 google-cloud-storage==2.10.0
-faiss-cpu==1.7.4
-uvicorn[standard]==0.29.0
-python-dotenv==1.0.1
-tiktoken==0.5.2
-langchain-community==0.0.21
-langchain-core==0.1.27
+faiss-cpu
+
+# Utils and Dependencies
+tiktoken
+protobuf
+python-dotenv
+
+# Production Server
+gunicorn
