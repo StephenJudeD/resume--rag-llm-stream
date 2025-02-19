@@ -6,3 +6,5 @@ faiss-cpu==1.7.4
 uvicorn[standard]==0.29.0
 python-dotenv==1.0.1
 tiktoken==0.5.2  # Critical version fix
+langchain-community==0.0.18  # Required for FAISS
+langchain-core==0.1.27  # Required dependency
