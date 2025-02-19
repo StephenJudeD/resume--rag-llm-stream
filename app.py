@@ -5,11 +5,38 @@ from openai import OpenAI
 from langchain_openai import OpenAIEmbeddings
 from langchain_community.vectorstores import FAISS
 from google.cloud import storage
+import logging
 
-# Your existing constants
-BUCKET_NAME = "ragsd-resume-bucket"
-os.environ["GCS_INDEX_PATH"] = "faiss_indexes/cv_index_text-embedding-3-large"
-INDEX_PATH = os.getenv("GCS_INDEX_PATH")
+# Initialize logger (like in the first code)
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+
+def download_index(bucket_name, source_blob_name, destination_file_name):
+    """Downloads a blob from the bucket."""
+    storage_client = storage.Client()
+    bucket = storage_client.bucket(bucket_name)
+    blob = bucket.blob(source_blob_name)
+    blob.download_to_filename(destination_file_name)
+    logger.debug(f"Blob {source_blob_name} downloaded to {destination_file_name}.")
+
+def load_vector_store(embeddings):
+    """Loads vector store following the pattern from the first code"""
+    bucket_name = "ragsd-resume-bucket"
+    index_path = "faiss_indexes/cv_index_text-embedding-3-large"
+    destination_folder = "/tmp"
+    
+    # Set credentials like in first code
+    os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'google-credentials.json'
+    
+    # Download index
+    destination_file_name = f"{destination_folder}/faiss_index"
+    download_index(bucket_name, index_path, destination_file_name)
+    
+    return FAISS.load_local(
+        destination_file_name,
+        embeddings,
+        allow_dangerous_deserialization=True
+    )
 
 class CVQueryApp:
     def __init__(self):
@@ -18,33 +45,19 @@ class CVQueryApp:
             if not api_key:
                 raise ValueError("OPENAI_API_KEY not found!")
 
-            # Initialize OpenAI client - no proxies argument needed
-            self.client = OpenAI(api_key=api_key)  # Pass API key directly
-
+            self.client = OpenAI(api_key=api_key)
+            
             self.embeddings = OpenAIEmbeddings(
                 model="text-embedding-3-large",
-                openai_api_key=api_key # Pass API key here as well.
+                openai_api_key=api_key
             )
-
-            self.vector_store = self._load_vector_store()
-
+            
+            # Load vector store using the new pattern
+            self.vector_store = load_vector_store(self.embeddings)
+            
         except Exception as e:
-            print(f"Error initializing CVQueryApp: {str(e)}")
+            logger.error(f"Error initializing CVQueryApp: {str(e)}")
             raise
-        
-    def _load_vector_store(self):
-        storage_client = storage.Client()
-        bucket = storage_client.bucket(BUCKET_NAME)
-        
-        local_path = "/tmp/faiss_index"
-        blob = bucket.blob(INDEX_PATH)
-        blob.download_to_filename(local_path)
-        
-        return FAISS.load_local(
-            local_path, 
-            self.embeddings,
-            allow_dangerous_deserialization=True
-        )
 
     def query(self, question: str) -> str:
         try:
