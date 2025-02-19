@@ -134,7 +134,7 @@ class CVQueryApp:
                 "\nProvide an answer based solely on the following CV sections:\n" + context
             )
 
-            response = openai.Completion.create(  # Use openai.Completion.create
+            response = openai.ChatCompletion.create( # Use openai.Completion.create
                 model="gpt-4o-mini",  # Correct model name
                 prompt=f"{system_msg}\nQuestion: {question}",  # Combine system and user message in prompt
                 temperature=0.1,
