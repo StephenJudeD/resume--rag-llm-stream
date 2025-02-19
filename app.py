@@ -150,8 +150,11 @@ def create_gradio_app(cv_app):
 
     def chat_response(message, history):
         """Handle chat interactions"""
-        return cv_app.query(message)
-
+        bot_message = cv_app.query(message)
+        # Gradio chatbot expects a list of tuples (user_msg, bot_msg)
+        history.append((message, bot_message))
+        return history
+    
     # Create the Gradio interface
     with gr.Blocks(css=custom_css) as demo:
         gr.HTML("<h1 class='title'>Stephen's CV Chat Assistant 🤖</h1>")
