@@ -8,7 +8,7 @@ openai
 langchain-openai
 langchain-community
 langchain-core
-google-cloud-storage
+google-cloud-storage==2.10.0
 faiss-cpu
 
 # Utils and Dependencies
