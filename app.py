@@ -8,7 +8,6 @@ from langchain_openai import OpenAIEmbeddings
 from langchain_community.vectorstores import FAISS
 from google.cloud import storage
 import logging
-import os
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -22,8 +21,6 @@ if os.getenv("GOOGLE_CREDENTIALS_JSON"):
         logger.debug(f"Temporary credentials file created at {temp.name}")
 else:
     logger.error("GOOGLE_CREDENTIALS_JSON environment variable not set.")
-
-
 
 
 def download_index_folder(bucket_name, source_folder, destination_dir):
@@ -173,6 +170,7 @@ app.index_string = '''
                 flex-grow: 1;
                 overflow-y: auto;
                 padding: 15px;
+                min-height: 0;
             }
             .message-container {
                 display: flex;
@@ -237,9 +235,13 @@ app.layout = html.Div(
             className="chat-card",
             children=[
                 dbc.CardBody([
-                    html.Div(
-                        id="chat-history",
-                        className="chat-history",
+                    dcc.Loading(
+                        id="loading-chat",
+                        type="circle",
+                        children=html.Div(
+                            id="chat-history",
+                            className="chat-history"
+                        )
                     ),
                 ])
             ]
