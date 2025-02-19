@@ -1,4 +1,3 @@
-# app.py
 import gradio as gr
 import os
 import asyncio
@@ -8,7 +7,6 @@ from langchain_community.vectorstores import FAISS
 from google.cloud import storage
 import logging
 import tempfile
-from fastapi import Request
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -39,21 +37,16 @@ class CVQueryApp:
             try:
                 logger.info("Starting async initialization...")
                 
-                # Initialize OpenAI client
                 if not self.api_key:
                     raise ValueError("OPENAI_API_KEY missing!")
                     
                 self.client = AsyncOpenAI(api_key=self.api_key)
-                
-                # Initialize embeddings
                 self.embeddings = OpenAIEmbeddings(
                     model="text-embedding-3-large",
                     openai_api_key=self.api_key
                 )
                 
-                # Load vector store
                 await self.load_vector_store()
-                
                 self.initialized = True
                 logger.info("Initialization completed successfully")
                 
@@ -105,103 +98,69 @@ class CVQueryApp:
 
     async def query(self, question: str) -> str:
         try:
-            return await asyncio.wait_for(
-                self._process_query(question),
-                timeout=25  # Heroku timeout buffer
+            if not self.initialized:
+                await self.initialize()
+                
+            retriever = self.vector_store.as_retriever(
+                search_type="mmr",
+                search_kwargs={"k": 8, "fetch_k": 20, "lambda_mult": 0.7}
             )
+            
+            loop = asyncio.get_event_loop()
+            docs = await loop.run_in_executor(
+                None,
+                lambda: retriever.get_relevant_documents(question)
+            )
+            
+            context = "\n".join(
+                f"[{doc.metadata['section']}]\n{doc.page_content}" 
+                for doc in docs
+            )
+            
+            response = await self.client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[
+                    {"role": "system", "content": (
+                        "You are a precise CV analysis assistant. Your task is to:\n"
+                        "1. Only use information explicitly stated in the provided CV sections\n"
+                        "2. Quote specific details when possible\n"
+                        "3. If information is not found, clearly state 'Information not found in CV'\n"
+                        "4. Maintain chronological accuracy when discussing experience\n"
+                        "5. Consider all provided sections before answering\n"
+                        "6. Use relevant links of demos, where applicable, to emphasize skills"
+                    )},
+                    {"role": "user", "content": f"Based on these CV sections:\n{context}\n\nQuestion: {question}"}
+                ],
+                temperature=0.1,
+                max_tokens=2000
+            )
+            
+            return response.choices[0].message.content
+            
         except asyncio.TimeoutError:
             logger.warning("Query timeout")
             return "Response timeout - please try a more specific question"
         except Exception as e:
             logger.error(f"Query error: {str(e)}")
-            if not self.initialized:
-                await self.initialize()
             return f"Error processing request: {str(e)}"
-
-    async def _process_query(self, question: str) -> str:
-        if not self.initialized:
-            await self.initialize()
-            
-        retriever = self.vector_store.as_retriever(
-            search_type="mmr",
-            search_kwargs={"k": 8, "fetch_k": 20, "lambda_mult": 0.7}
-        )
-        
-        loop = asyncio.get_event_loop()
-        docs = await loop.run_in_executor(
-            None,
-            lambda: retriever.get_relevant_documents(question)
-        )
-        
-        context = "\n".join(
-            f"[{doc.metadata['section']}]\n{doc.page_content}" 
-            for doc in docs
-        )
-        
-        response = await self.client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
-                {"role": "system", "content": (
-                    "You are a precise CV analysis assistant. Your task is to:\n"
-                    "1. Only use information explicitly stated in the provided CV sections\n"
-                    "2. Quote specific details when possible\n"
-                    "3. If information is not found, clearly state 'Information not found in CV'\n"
-                    "4. Maintain chronological accuracy when discussing experience\n"
-                    "5. Consider all provided sections before answering\n"
-                    "6. Use relevant links of demos, where applicable, to emphasize skills"
-                )},
-                {"role": "user", "content": f"Based on these CV sections:\n{context}\n\nQuestion: {question}"}
-            ],
-            temperature=0.1,
-            max_tokens=2000
-        )
-        
-        return response.choices[0].message.content
 
 # Initialize application
 cv_app = CVQueryApp()
 
 # Create Gradio interface
-with gr.Blocks(
-    title="CV Assistant",
-    theme=gr.themes.Soft(),
-    analytics_enabled=False
-) as demo:
+with gr.Blocks(title="CV Assistant", theme=gr.themes.Soft()) as demo:
     gr.HTML("<h1 style='text-align: center'>Stephen's CV Chat Assistant 🤖</h1>")
-    
     chatbot = gr.Chatbot(height=500)
     msg = gr.Textbox(label="Your Question")
     clear = gr.Button("Clear")
     
-    msg.submit(
-        lambda message, history: (message, history + [(message, "")]),
-        [msg, chatbot], [msg, chatbot], queue=False
-    ).then(
-        cv_app.query,
-        [msg], [chatbot]
-    )
-    
-    clear.click(lambda: [], None, chatbot, queue=False)
+    msg.submit(cv_app.query, msg, chatbot)
+    clear.click(lambda: None, None, chatbot)
 
-# Configure FastAPI app
 app = demo.app
 
-# Add keep-alive middleware
-@app.middleware("http")
-async def add_keep_alive(request: Request, call_next):
-    response = await call_next(request)
-    response.headers["Keep-Alive"] = "timeout=30, max=100"
-    response.headers["Connection"] = "keep-alive"
-    return response
-
-# Start initialization on app startup
-@app.on_event("startup")
-async def startup_event():
-    asyncio.create_task(cv_app.initialize())
-
 if __name__ == "__main__":
-    demo.queue(concurrency_count=2, api_open=False).launch(
+    demo.launch(
         server_name="0.0.0.0",
-        server_port=int(os.getenv("PORT", 7860)),
-        show_error=True
+        server_port=int(os.getenv("PORT", 7860))
     )
