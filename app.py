@@ -1,13 +1,11 @@
-import dash
-from dash import html, dcc, Input, Output, State
+import gradio as gr
 import os
-import tempfile
 from openai import OpenAI
 from langchain_openai import OpenAIEmbeddings
 from langchain_community.vectorstores import FAISS
 from google.cloud import storage
 import logging
-import os
+import tempfile
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -123,83 +121,99 @@ class CVQueryApp:
         except Exception as e:
             return f"Error: {str(e)}"
 
-app = dash.Dash(__name__)
-server = app.server
+def create_gradio_app(cv_app):
+    # Custom CSS to match your Dash styling
+    custom_css = """
+    .gradio-container {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+        max-width: 800px !important;
+        margin: auto !important;
+    }
+    .chat-message {
+        padding: 10px !important;
+        border-radius: 5px !important;
+        margin: 5px 0 !important;
+    }
+    .user-message {
+        background-color: #e3f2fd !important;
+        margin-left: 20% !important;
+    }
+    .assistant-message {
+        background-color: #f5f5f5 !important;
+        margin-right: 20% !important;
+    }
+    .title {
+        text-align: center !important;
+        color: #2c3e50 !important;
+    }
+    """
 
-app.index_string = '''
-<!DOCTYPE html>
-<html>
-    <head>
-        {%metas%}
-        <title>Stephen's CV Chat Assistant</title>
-        {%favicon%}
-        {%css%}
-        <style>
-            .chat-container {max-width: 800px; margin: 0 auto; padding: 20px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;}
-            .chat-box {border: 1px solid #ddd; border-radius: 10px; padding: 20px; margin-bottom: 20px; background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1);}
-            .message-input {width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; margin-bottom: 10px;}
-            .submit-button {background-color: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; transition: background-color 0.3s;}
-            .submit-button:hover {background-color: #0056b3;}
-            .message {padding: 10px; margin: 5px 0; border-radius: 5px;}
-            .user-message {background-color: #e3f2fd; margin-left: 20%;}
-            .bot-message {background-color: #f5f5f5; margin-right: 20%;}
-        </style>
-    </head>
-    <body>
-        {%app_entry%}
-        <footer>{%config%}{%scripts%}{%renderer%}</footer>
-    </body>
-</html>
-'''
+    def chat_response(message, history):
+        """Handle chat interactions"""
+        return cv_app.query(message)
 
-cv_app = CVQueryApp()
+    # Create the Gradio interface
+    with gr.Blocks(css=custom_css) as demo:
+        gr.HTML("<h1 class='title'>Stephen's CV Chat Assistant 🤖</h1>")
+        
+        chatbot = gr.Chatbot(
+            label="Chat History",
+            bubble_full_width=False,
+            height=400
+        )
+        
+        msg = gr.Textbox(
+            label="Ask me anything about Stephen's experience, skills, or background!",
+            placeholder="Type your question here...",
+            scale=4
+        )
+        
+        with gr.Row():
+            submit = gr.Button("Ask", variant="primary")
 
-app.layout = html.Div([
-    html.Div([
-        html.H1("Stephen's CV Chat Assistant 🤖", style={'textAlign': 'center', 'color': '#2c3e50'}),
-        html.Div([
-            html.P("Ask me anything about Stephen's experience, skills, or background!",
-                   style={'textAlign': 'center', 'color': '#7f8c8d'}),
-        ], className='chat-box'),
-        html.Div(id='chat-history', className='chat-box'),
-        dcc.Input(id='user-input', type='text', placeholder='Type your question here...', className='message-input'),
-        html.Button('Ask', id='submit-button', className='submit-button'),
-        dcc.Store(id='chat-store', data=[]),
-        html.Div([
-            html.H3("Example Questions:", style={'color': '#2c3e50'}),
-            html.Ul([
-                html.Li("What is Stephen's current role and company?"),
-                html.Li("What are his key technical skills?"),
-                html.Li("What projects has he worked on?"),
-                html.Li("What books has Stephen read?"),
-                html.Li("What makes him a good data scientist?"),
-            ])
-        ], className='chat-box')
-    ], className='chat-container')
-])
+        # Example questions
+        gr.HTML("""
+            <div style='padding: 20px; background: white; border-radius: 10px; margin-top: 20px;'>
+                <h3 style='color: #2c3e50;'>Example Questions:</h3>
+                <ul>
+                    <li>What is Stephen's current role and company?</li>
+                    <li>What are his key technical skills?</li>
+                    <li>What projects has he worked on?</li>
+                    <li>What books has Stephen read?</li>
+                    <li>What makes him a good data scientist?</li>
+                </ul>
+            </div>
+        """)
 
-@app.callback(
-    [Output('chat-history', 'children'), Output('chat-store', 'data'), Output('user-input', 'value')],
-    [Input('submit-button', 'n_clicks')],
-    [State('user-input', 'value'), State('chat-store', 'data')],
-    prevent_initial_call=True
-)
-def update_chat(n_clicks, user_input, chat_history):
-    if not user_input:
-        return dash.no_update, dash.no_update, dash.no_update
+        # Set up chat functionality
+        msg.submit(
+            chat_response, 
+            [msg, chatbot], 
+            [chatbot]
+        ).then(
+            lambda: "", 
+            None, 
+            [msg]
+        )
+        
+        submit.click(
+            chat_response, 
+            [msg, chatbot], 
+            [chatbot]
+        ).then(
+            lambda: "", 
+            None, 
+            [msg]
+        )
 
-    response = cv_app.query(user_input)
-    chat_history.append({'user': user_input, 'bot': response})
-    chat_messages = []
-    for chat in chat_history:
-        chat_messages.extend([
-            html.Div(chat['user'], className='message user-message'),
-            html.Div(chat['bot'], className='message bot-message')
-        ])
+    return demo
 
-    return chat_messages, chat_history, ''
-
-if __name__ == '__main__':
-    port = int(os.getenv("PORT", 7860))
-    app.run_server(host='0.0.0.0', port=port, debug=True)
-
+# Initialize and launch
+if __name__ == "__main__":
+    cv_app = CVQueryApp()
+    demo = create_gradio_app(cv_app)
+    demo.launch(
+        server_name="0.0.0.0",
+        server_port=int(os.getenv("PORT", 7860)),
+        share=False
+    )
