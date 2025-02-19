@@ -1,5 +1,6 @@
 import dash
 from dash import html, dcc, Input, Output, State
+import dash_bootstrap_components as dbc
 import os
 import tempfile
 from openai import OpenAI
@@ -123,7 +124,7 @@ class CVQueryApp:
         except Exception as e:
             return f"Error: {str(e)}"
 
-app = dash.Dash(__name__)
+app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 server = app.server
 
 app.index_string = '''
@@ -135,14 +136,88 @@ app.index_string = '''
         {%favicon%}
         {%css%}
         <style>
-            .chat-container {max-width: 800px; margin: 0 auto; padding: 20px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;}
-            .chat-box {border: 1px solid #ddd; border-radius: 10px; padding: 20px; margin-bottom: 20px; background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1);}
-            .message-input {width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; margin-bottom: 10px;}
-            .submit-button {background-color: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; transition: background-color 0.3s;}
-            .submit-button:hover {background-color: #0056b3;}
-            .message {padding: 10px; margin: 5px 0; border-radius: 5px;}
-            .user-message {background-color: #e3f2fd; margin-left: 20%;}
-            .bot-message {background-color: #f5f5f5; margin-right: 20%;}
+            @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap');
+            body {
+                font-family: 'DM Sans', sans-serif;
+                background-color: #F9F7F4;
+            }
+            .chat-container {
+                max-width: 800px;
+                margin: 0 auto;
+                background-color: #FFFFFF;
+                border-radius: 10px;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                height: 100vh;
+                display: flex;
+                flex-direction: column;
+                padding: 20px;
+            }
+            .chat-title {
+                font-size: 24px;
+                font-weight: 700;
+                color: #1B3139;
+                text-align: center;
+                margin-bottom: 20px;
+            }
+            .chat-card {
+                border: none;
+                background-color: #EEEDE9;
+                flex-grow: 1;
+                display: flex;
+                flex-direction: column;
+                overflow: hidden;
+                margin-bottom: 20px;
+                border-radius: 10px;
+            }
+            .chat-history {
+                flex-grow: 1;
+                overflow-y: auto;
+                padding: 15px;
+            }
+            .message-container {
+                display: flex;
+                margin-bottom: 15px;
+            }
+            .user-container {
+                justify-content: flex-end;
+            }
+            .chat-message {
+                max-width: 80%;
+                padding: 10px 15px;
+                border-radius: 20px;
+                font-size: 16px;
+                line-height: 1.4;
+            }
+            .user-message {
+                background-color: #004687;
+                color: white;
+            }
+            .bot-message {
+                background-color: #7DC242;
+                color: white;
+            }
+            #user-input {
+                border-radius: 20px;
+                border: 1px solid #DCE0E2;
+                flex-grow: 1;
+            }
+            .send-button {
+                background-color: #7DC242;
+                border-color: #7DC242;
+                border-radius: 20px;
+                width: 100px;
+                margin-left: 10px;
+            }
+            .clear-button {
+                background-color: #98102A;
+                border-color: #98102A;
+                border-radius: 20px;
+                width: 100px;
+                margin-left: 10px;
+            }
+            .input-group {
+                flex-wrap: nowrap;
+            }
         </style>
     </head>
     <body>
@@ -154,49 +229,96 @@ app.index_string = '''
 
 cv_app = CVQueryApp()
 
-app.layout = html.Div([
-    html.Div([
-        html.H1("Stephen's CV Chat Assistant 🤖", style={'textAlign': 'center', 'color': '#2c3e50'}),
-        html.Div([
-            html.P("Ask me anything about Stephen's experience, skills, or background!",
-                   style={'textAlign': 'center', 'color': '#7f8c8d'}),
-        ], className='chat-box'),
-        html.Div(id='chat-history', className='chat-box'),
-        dcc.Input(id='user-input', type='text', placeholder='Type your question here...', className='message-input'),
-        html.Button('Ask', id='submit-button', className='submit-button'),
-        dcc.Store(id='chat-store', data=[]),
-        html.Div([
-            html.H3("Example Questions:", style={'color': '#2c3e50'}),
-            html.Ul([
-                html.Li("What is Stephen's current role and company?"),
-                html.Li("What are his key technical skills?"),
-                html.Li("What projects has he worked on?"),
-                html.Li("What books has Stephen read?"),
-                html.Li("What makes him a good data scientist?"),
-            ])
-        ], className='chat-box')
-    ], className='chat-container')
-])
+app.layout = html.Div(
+    className="chat-container",
+    children=[
+        html.H2("Stephen's CV Chat Assistant", className="chat-title"),
+        dbc.Card(
+            className="chat-card",
+            children=[
+                dbc.CardBody([
+                    html.Div(
+                        id="chat-history",
+                        className="chat-history",
+                    ),
+                ])
+            ]
+        ),
+        dbc.InputGroup([
+            dbc.Input(
+                id="user-input",
+                placeholder="Type your question here...",
+                type="text",
+                className="form-control"
+            ),
+            dbc.Button(
+                "Send",
+                id="submit-button",
+                n_clicks=0,
+                className="send-button"
+            ),
+            dbc.Button(
+                "Clear",
+                id="clear-button",
+                n_clicks=0,
+                className="clear-button"
+            ),
+        ]),
+        dcc.Store(id="chat-store", data=[]),
+        dcc.Store(id="assistant-trigger"),
+        html.Div(id="dummy-output", style={"display": "none"}),
+    ]
+)
 
 @app.callback(
-    [Output('chat-history', 'children'), Output('chat-store', 'data'), Output('user-input', 'value')],
-    [Input('submit-button', 'n_clicks')],
-    [State('user-input', 'value'), State('chat-store', 'data')],
+    [Output('chat-history', 'children'),
+     Output('chat-store', 'data'),
+     Output('user-input', 'value')],
+    [Input('submit-button', 'n_clicks'),
+     Input('clear-button', 'n_clicks')],
+    [State('user-input', 'value'),
+     State('chat-store', 'data')],
     prevent_initial_call=True
 )
-def update_chat(n_clicks, user_input, chat_history):
+def update_chat(send_clicks, clear_clicks, user_input, chat_history):
+    ctx = dash.callback_context
+    if not ctx.triggered:
+        return dash.no_update, dash.no_update, dash.no_update
+        
+    trigger_id = ctx.triggered[0]['prop_id'].split('.')[0]
+    
+    if trigger_id == 'clear-button':
+        return [], [], ''
+    
     if not user_input:
         return dash.no_update, dash.no_update, dash.no_update
 
     response = cv_app.query(user_input)
     chat_history.append({'user': user_input, 'bot': response})
+    
     chat_messages = []
-    for chat in chat_history:
+    for msg in chat_history:
         chat_messages.extend([
-            html.Div(chat['user'], className='message user-message'),
-            html.Div(chat['bot'], className='message bot-message')
+            html.Div(
+                className="message-container user-container",
+                children=[
+                    html.Div(
+                        msg['user'],
+                        className="chat-message user-message"
+                    )
+                ]
+            ),
+            html.Div(
+                className="message-container",
+                children=[
+                    html.Div(
+                        msg['bot'],
+                        className="chat-message bot-message"
+                    )
+                ]
+            )
         ])
-
+    
     return chat_messages, chat_history, ''
 
 if __name__ == '__main__':
