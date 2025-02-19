@@ -154,16 +154,23 @@ app.index_string = '''
             body {
                 background-color: var(--bg-color);
                 margin: 0;
-                padding: 20px;
+                padding: 0;
+                height: 100vh;
+                display: flex;
+                justify-content: center;
+                align-items: center;
             }
             
             .chat-container {
+                width: 100%;
                 max-width: 800px;
-                margin: 20px auto;
+                height: 90vh;
                 background: white;
                 border-radius: 16px;
-                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
                 overflow: hidden;
+                display: flex;
+                flex-direction: column;
             }
             
             .header {
@@ -171,11 +178,12 @@ app.index_string = '''
                 padding: 1.5rem;
                 color: white;
                 border-radius: 16px 16px 0 0;
+                text-align: center;
             }
             
             .chat-history {
                 padding: 1.5rem;
-                height: 60vh;
+                flex: 1;
                 overflow-y: auto;
                 background: linear-gradient(to bottom right, #f8fafc, #f1f5f9);
             }
@@ -183,19 +191,19 @@ app.index_string = '''
             .message-container {
                 display: flex;
                 gap: 12px;
-                margin-bottom: 1.5rem;
+                margin-bottom: 1rem;
             }
             
             .user-message-container {
-                flex-direction: row-reverse;
+                justify-content: flex-end;
             }
             
             .message-bubble {
                 max-width: 70%;
-                padding: 1rem 1.25rem;
+                padding: 0.75rem 1rem;
                 border-radius: 1rem;
                 position: relative;
-                line-height: 1.5;
+                line-height: 1.4;
                 font-size: 0.875rem;
             }
             
@@ -203,6 +211,7 @@ app.index_string = '''
                 background: var(--user-bubble);
                 color: white;
                 border-radius: 1rem 1rem 0 1rem;
+                align-self: flex-end;
             }
             
             .bot-bubble {
@@ -214,7 +223,7 @@ app.index_string = '''
             .input-container {
                 display: flex;
                 gap: 12px;
-                padding: 1.5rem;
+                padding: 1rem;
                 background: white;
                 border-top: 1px solid #e2e8f0;
             }
@@ -223,7 +232,7 @@ app.index_string = '''
                 display: inline-block;
                 padding: 8px 16px;
                 background: #e2e8f0;
-                border-radius: 8px;
+                border-radius: 24px;
                 margin: 4px;
                 cursor: pointer;
                 transition: all 0.2s;
@@ -233,15 +242,14 @@ app.index_string = '''
             .question-chip:hover {
                 background: var(--secondary-color);
                 color: white;
-                transform: translateY(-2px);
             }
             
             .input-field {
                 flex: 1;
-                padding: 12px;
-                border: 2px solid #e2e8f0;
-                border-radius: 8px;
-                font-size: 1rem;
+                padding: 0.75rem 1rem;
+                border: 1px solid #e2e8f0;
+                border-radius: 24px;
+                font-size: 0.875rem;
                 transition: border-color 0.2s;
             }
             
@@ -254,8 +262,8 @@ app.index_string = '''
                 background: var(--primary-color);
                 color: white;
                 border: none;
-                padding: 12px 24px;
-                border-radius: 8px;
+                padding: 0.75rem 1.5rem;
+                border-radius: 24px;
                 cursor: pointer;
                 transition: all 0.2s;
                 font-weight: 500;
@@ -263,15 +271,15 @@ app.index_string = '''
             
             .submit-button:hover {
                 background: var(--secondary-color);
-                transform: translateY(-1px);
             }
             
             .typing-indicator {
                 display: inline-flex;
                 gap: 4px;
-                padding: 8px 16px;
+                padding: 6px 12px;
                 background: var(--bot-bubble);
-                border-radius: 8px;
+                border-radius: 16px;
+                align-self: flex-start;
             }
             
             .dot {
@@ -297,40 +305,31 @@ app.index_string = '''
 
 app.layout = html.Div([
     html.Div([
+        html.H1("Stephen's Professional Profile Assistant", className='header'),
+        html.Div(id='chat-history', className='chat-history'),
         html.Div([
-            html.H1("Stephen's Professional Profile Assistant", className='header'),
-            html.Div([
-                html.P("AI-powered CV analysis for hiring managers", style={'marginBottom': '0.5rem'}),
-                html.Small("Ask about experience, technical skills, projects, or book recommendations"),
-            ], style={'padding': '0 1.5rem', 'marginTop': '1rem'}),
-            
-            html.Div(id='chat-history', className='chat-history'),
-            
-            html.Div([
-                dcc.Input(
-                    id='user-input',
-                    type='text',
-                    placeholder='Ask about experience, skills, or projects...',
-                    className='input-field',
-                    autoComplete='off'
-                ),
-                html.Button('Send →', id='submit-button', className='submit-button'),
-            ], className='input-container'),
-            
-            html.Div([
-                html.Div("Example Questions:", style={'fontWeight': '500', 'marginBottom': '0.5rem'}),
-                html.Div([
-                    html.Span("Current role and company?", className='question-chip'),
-                    html.Span("Technical skills?", className='question-chip'),
-                    html.Span("Recent projects?", className='question-chip'),
-                    html.Span("Book recommendations?", className='question-chip'),
-                ], style={'marginBottom': '1rem'}),
-            ], style={'padding': '0 1.5rem', 'marginBottom': '1.5rem'}),
-            
-            dcc.Store(id='chat-store', data=[]),
-            dcc.Interval(id='fake-typing', interval=1000, disabled=True),
-        ], className='chat-container')
-    ])
+            dcc.Input(
+                id='user-input',
+                type='text',
+                placeholder='Ask about experience, skills, or projects...',
+                className='input-field',
+                autoComplete='off',
+                n_submit=0,
+            ),
+            html.Button('Send', id='submit-button', className='submit-button', n_clicks=0),
+        ], className='input-container'),
+        html.Div([
+            html.Div("Example Questions:", style={'fontWeight': '500', 'marginBottom': '0.5rem', 'padding': '0 1rem'}),
+            html.Div(id='question-chips', children=[
+                html.Span("Current role and company?", id='chip-1', n_clicks=0, className='question-chip'),
+                html.Span("Technical skills?", id='chip-2', n_clicks=0, className='question-chip'),
+                html.Span("Recent projects?", id='chip-3', n_clicks=0, className='question-chip'),
+                html.Span("Book recommendations?", id='chip-4', n_clicks=0, className='question-chip'),
+            ], style={'padding': '0 1rem', 'marginBottom': '1rem'}),
+        ]),
+        dcc.Store(id='chat-store', data=[]),
+        dcc.Interval(id='fake-typing', interval=1000, disabled=True),
+    ], className='chat-container')
 ])
 
 @app.callback(
@@ -339,50 +338,57 @@ app.layout = html.Div([
      Output('user-input', 'value'),
      Output('fake-typing', 'disabled')],
     [Input('submit-button', 'n_clicks'),
+     Input('user-input', 'n_submit'),
+     Input('chip-1', 'n_clicks'),
+     Input('chip-2', 'n_clicks'),
+     Input('chip-3', 'n_clicks'),
+     Input('chip-4', 'n_clicks'),
      Input('fake-typing', 'n_intervals')],
     [State('user-input', 'value'),
      State('chat-store', 'data')],
     prevent_initial_call=True
 )
-def update_chat(n_clicks, n_intervals, user_input, chat_history):
+def update_chat(n_clicks, n_submit, chip1_clicks, chip2_clicks, chip3_clicks, chip4_clicks, n_intervals, user_input, chat_history):
     ctx = dash.callback_context
     if not ctx.triggered:
         return dash.no_update, dash.no_update, dash.no_update, dash.no_update
     
-    if 'submit-button' in ctx.triggered[0]['prop_id']:
-        response = cv_app.query(user_input)
-        chat_history.append({'user': user_input, 'bot': response})
-        
-        chat_messages = []
-        for chat in chat_history:
-            chat_messages.extend([
-                html.Div([
-                    html.Div(chat['user'], className='message-bubble user-bubble'),
-                ], className='message-container user-message-container'),
-                html.Div([
-                    html.Div(chat['bot'], className='message-bubble bot-bubble'),
-                ], className='message-container'),
-            ])
-        
-        # Add temporary typing indicator
-        chat_messages.append(
+    trigger_id = ctx.triggered[0]['prop_id'].split('.')[0]
+
+    if trigger_id == 'submit-button' or trigger_id == 'user-input':
+        if not user_input:
+            return dash.no_update, dash.no_update, dash.no_update, dash.no_update
+    elif trigger_id.startswith('chip-'):
+        chip_id = int(trigger_id.split('-')[1])
+        user_input = ['Current role and company?', 'Technical skills?', 'Recent projects?', 'Book recommendations?'][chip_id - 1]
+    
+    response = cv_app.query(user_input)
+    chat_history.append({'user': user_input, 'bot': response})
+    
+    chat_messages = []
+    for chat in chat_history:
+        chat_messages.extend([
             html.Div([
-                html.Div([
-                    html.Div(className='dot'),
-                    html.Div(className='dot'),
-                    html.Div(className='dot'),
-                ], className='typing-indicator')
-            ], className='message-container')
-        )
-        
-        return chat_messages, chat_history, '', False
+                html.Div(chat['user'], className='message-bubble user-bubble'),
+            ], className='message-container user-message-container'),
+            html.Div([
+                html.Div(chat['bot'], className='message-bubble bot-bubble'),
+            ], className='message-container'),
+        ])
     
-    elif 'fake-typing' in ctx.triggered[0]['prop_id']:
-        return dash.no_update, dash.no_update, dash.no_update, True
+    # Add temporary typing indicator
+    chat_messages.append(
+        html.Div([
+            html.Div([
+                html.Div(className='dot'),
+                html.Div(className='dot'),
+                html.Div(className='dot'),
+            ], className='typing-indicator')
+        ], className='message-container')
+    )
     
-    return dash.no_update, dash.no_update, dash.no_update, True
+    return chat_messages, chat_history, '', False
 
 if __name__ == '__main__':
     port = int(os.getenv("PORT", 7860))
     app.run_server(host='0.0.0.0', port=port, debug=True)
-
