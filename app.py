@@ -7,12 +7,15 @@ from langchain_community.vectorstores import FAISS
 from google.cloud import storage
 import logging
 
-# Initialize logger (like in the first code)
+# Initialize logger
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 def download_index(bucket_name, source_blob_name, destination_file_name):
     """Downloads a blob from the bucket."""
+    # Set the environment variable for application credentials
+    os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'google-credentials.json'
+    
     storage_client = storage.Client()
     bucket = storage_client.bucket(bucket_name)
     blob = bucket.blob(source_blob_name)
@@ -20,15 +23,11 @@ def download_index(bucket_name, source_blob_name, destination_file_name):
     logger.debug(f"Blob {source_blob_name} downloaded to {destination_file_name}.")
 
 def load_vector_store(embeddings):
-    """Loads vector store following the pattern from the first code"""
+    """Loads vector store from GCS bucket"""
     bucket_name = "ragsd-resume-bucket"
     index_path = "faiss_indexes/cv_index_text-embedding-3-large"
     destination_folder = "/tmp"
     
-    # Set credentials like in first code
-    os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'google-credentials.json'
-    
-    # Download index
     destination_file_name = f"{destination_folder}/faiss_index"
     download_index(bucket_name, index_path, destination_file_name)
     
