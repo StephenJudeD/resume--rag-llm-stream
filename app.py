@@ -137,23 +137,31 @@ app.index_string = '''
             body {
                 font-family: 'DM Sans', sans-serif;
                 background-color: #F9F7F4;
+                margin: 0;
+                padding: 0;
             }
             .chat-container {
                 max-width: 800px;
-                margin: 0 auto;
+                margin: 20px auto;
                 background-color: #FFFFFF;
                 border-radius: 10px;
                 box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-                height: 100vh;
                 display: flex;
                 flex-direction: column;
                 padding: 20px;
+                height: 90vh;
             }
             .chat-title {
-                font-size: 24px;
+                font-size: 28px;
                 font-weight: 700;
                 color: #1B3139;
                 text-align: center;
+                margin-bottom: 10px;
+            }
+            .info-card {
+                margin-bottom: 20px;
+            }
+            .example-card {
                 margin-bottom: 20px;
             }
             .chat-card {
@@ -168,9 +176,10 @@ app.index_string = '''
             }
             .chat-history {
                 flex-grow: 1;
-                overflow-y: auto;
+                overflow-y: scroll;
                 padding: 15px;
                 min-height: 0;
+                max-height: 50vh;
             }
             .message-container {
                 display: flex;
@@ -185,6 +194,7 @@ app.index_string = '''
                 border-radius: 20px;
                 font-size: 16px;
                 line-height: 1.4;
+                word-wrap: break-word;
             }
             .user-message {
                 background-color: #004687;
@@ -216,6 +226,9 @@ app.index_string = '''
             .input-group {
                 flex-wrap: nowrap;
             }
+            .example-button {
+                margin: 5px;
+            }
         </style>
     </head>
     <body>
@@ -231,6 +244,36 @@ app.layout = html.Div(
     className="chat-container",
     children=[
         html.H2("Stephen's CV Chat Assistant", className="chat-title"),
+        dbc.Card(
+            dbc.CardBody(
+                html.P(
+                    "Welcome to Stephen's CV Chat Assistant! This tool allows hiring managers to query Stephen’s professional background "
+                    "and his reading interests. It is built on Stephen’s CV and a curated list of books he has read in recent years.",
+                    className="card-text"
+                )
+            ),
+            className="info-card"
+        ),
+        dbc.Card(
+            dbc.CardBody(
+                [
+                    html.H5("Example Queries", className="card-title"),
+                    dbc.Button("What's Stephen's recent work experience?",
+                               id="example-1",
+                               color="primary",
+                               className="example-button"),
+                    dbc.Button("What books has Stephen read recently?",
+                               id="example-2",
+                               color="info",
+                               className="example-button"),
+                    dbc.Button("How does Stephen describe his technical skills?",
+                               id="example-3",
+                               color="secondary",
+                               className="example-button"),
+                ]
+            ),
+            className="example-card"
+        ),
         dbc.Card(
             className="chat-card",
             children=[
@@ -251,7 +294,7 @@ app.layout = html.Div(
                 id="user-input",
                 placeholder="Type your question here...",
                 type="text",
-                className="form-control"
+                n_submit=0  # trigger on enter key
             ),
             dbc.Button(
                 "Send",
@@ -267,26 +310,27 @@ app.layout = html.Div(
             ),
         ]),
         dcc.Store(id="chat-store", data=[]),
-        dcc.Store(id="assistant-trigger"),
         html.Div(id="dummy-output", style={"display": "none"}),
     ]
 )
 
+# Main chat callback: listens to both the Send button and the Enter (n_submit) event
 @app.callback(
     [Output('chat-history', 'children'),
      Output('chat-store', 'data'),
      Output('user-input', 'value')],
     [Input('submit-button', 'n_clicks'),
+     Input('user-input', 'n_submit'),
      Input('clear-button', 'n_clicks')],
     [State('user-input', 'value'),
      State('chat-store', 'data')],
     prevent_initial_call=True
 )
-def update_chat(send_clicks, clear_clicks, user_input, chat_history):
+def update_chat(send_clicks, enter_submit, clear_clicks, user_input, chat_history):
     ctx = dash.callback_context
     if not ctx.triggered:
         return dash.no_update, dash.no_update, dash.no_update
-        
+
     trigger_id = ctx.triggered[0]['prop_id'].split('.')[0]
     
     if trigger_id == 'clear-button':
@@ -322,6 +366,29 @@ def update_chat(send_clicks, clear_clicks, user_input, chat_history):
         ])
     
     return chat_messages, chat_history, ''
+
+# Callback for example queries
+@app.callback(
+    Output('user-input', 'value'),
+    [
+        Input('example-1', 'n_clicks'),
+        Input('example-2', 'n_clicks'),
+        Input('example-3', 'n_clicks')
+    ],
+    prevent_initial_call=True
+)
+def update_example_query(n1, n2, n3):
+    ctx = dash.callback_context
+    if not ctx.triggered:
+        return dash.no_update
+    trigger_id = ctx.triggered[0]['prop_id'].split('.')[0]
+    if trigger_id == 'example-1':
+        return "What's Stephen's recent work experience?"
+    elif trigger_id == 'example-2':
+        return "What books has Stephen read recently?"
+    elif trigger_id == 'example-3':
+        return "How does Stephen describe his technical skills?"
+    return dash.no_update
 
 if __name__ == '__main__':
     port = int(os.getenv("PORT", 7860))
