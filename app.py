@@ -129,22 +129,20 @@ class CVQueryApp:
                 for doc in docs
             )
 
-            # Build the system message including the prompt engineering instructions
             system_msg = (
                 PROMPT_ENGINEERING +
                 "\nProvide an answer based solely on the following CV sections:\n" + context
             )
 
-            response = openai.ChatCompletion.create(
-                model="gpt-4o-mini",
-                messages=[
-                    {"role": "system", "content": system_msg},
-                    {"role": "user", "content": f"Question: {question}"}
-                ],
+            response = openai.Completion.create(  # Use openai.Completion.create
+                model="gpt-4o-mini",  # Correct model name
+                prompt=f"{system_msg}\nQuestion: {question}",  # Combine system and user message in prompt
                 temperature=0.1,
                 max_tokens=2000
             )
-            return response.choices[0].message.content
+
+            return response.choices[0].text  # Access the text attribute
+
         except Exception as e:
             return f"Error: {str(e)}"
 
