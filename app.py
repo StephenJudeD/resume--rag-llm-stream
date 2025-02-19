@@ -212,9 +212,13 @@ def create_gradio_app(cv_app):
     return demo
 
 # Initialize and launch
+cv_app = CVQueryApp()
+demo = create_gradio_app(cv_app)
+
+# Create app instance for gunicorn
+app = demo.app  # This is what gunicorn needs
+
 if __name__ == "__main__":
-    cv_app = CVQueryApp()
-    demo = create_gradio_app(cv_app)
     demo.launch(
         server_name="0.0.0.0",
         server_port=int(os.getenv("PORT", 7860)),
