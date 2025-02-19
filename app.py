@@ -126,6 +126,8 @@ class CVQueryApp:
 app = dash.Dash(__name__)
 server = app.server
 
+cv_app = CVQueryApp()  # Initialize query app AFTER Dash app
+
 app.index_string = '''
 <!DOCTYPE html>
 <html>
