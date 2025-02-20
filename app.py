@@ -93,6 +93,7 @@ cv_app = CVQueryApp()
 
 import streamlit as st
 
+# Custom Styling
 st.markdown("""
     <style>
         .stApp {
@@ -168,16 +169,16 @@ with st.expander("Quick Questions"):
 
 # Process user input
 if st.session_state.run_query and st.session_state.user_input:
-    # Trigger the rerun FIRST
-    st.experimental_rerun()  # This will stop the current execution and restart the script
-    
-    # NOW, after the rerun, this block will be executed with the updated state
-    if st.session_state.run_query and st.session_state.user_input: #Check again after the rerun
+    # Check if rerun is needed and process query after state update
+    if not st.session_state.run_query:
         response = cv_app.query(st.session_state.user_input)
 
         # Append conversation to chat history
         st.session_state.chat_history.append({"user": st.session_state.user_input, "bot": response})
 
-        # Reset input and query state (important!)
+        # Reset input and query state after processing
         st.session_state.user_input = ""
         st.session_state.run_query = False
+
+    # Trigger rerun to prevent page flicker while ensuring state is updated
+    st.experimental_rerun()
