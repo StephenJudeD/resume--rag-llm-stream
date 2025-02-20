@@ -101,24 +101,15 @@ st.set_page_config(
     layout="wide"
 )
 
-# Custom styling for better UI design
+## Custom styling
+st.set_page_config(page_title="Stephen's Professional Profile Assistant", page_icon="📄", layout="wide")
 st.markdown(
     """
     <style>
+        /* General styling */
         body {
             background-color: #f0f4f8;
             font-family: 'Inter', sans-serif;
-        }
-        .stButton>button {
-            background-color: #2563eb;
-            color: white;
-            font-size: 1rem;
-            border-radius: 20px;
-            padding: 0.75rem 1.5rem;
-            transition: background-color 0.3s ease;
-        }
-        .stButton>button:hover {
-            background-color: #3b82f6;
         }
         .stTextInput>div>input {
             padding: 0.75rem;
@@ -131,11 +122,7 @@ st.markdown(
         .stTextInput>div>input:focus {
             outline-color: #2563eb;
         }
-        .stMarkdown {
-            padding: 1rem;
-            background-color: #fff;
-            border-radius: 12px;
-        }
+        /* Chat bubbles */
         .message-container {
             display: flex;
             gap: 12px;
@@ -160,51 +147,77 @@ st.markdown(
             background: #e2e8f0;
             color: #1e293b;
         }
+        /* Sidebar styling */
+        .sidebar .sidebar-content {
+            padding: 1rem;
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        /* Chat container */
+        .chat-container {
+            max-height: 70vh;
+            overflow-y: auto;
+            padding: 1rem;
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
     </style>
-    """,
-    unsafe_allow_html=True
+    """, unsafe_allow_html=True
 )
 
-# Display app title
+# Sidebar for personal info
+with st.sidebar:
+    st.image("https://via.placeholder.com/150", caption="Your Photo", use_column_width=True)  # Replace with your image URL
+    st.markdown("### Stephen Doe")
+    st.markdown("""
+        **Data Scientist | AI Engineer**  
+        Passionate about building intelligent systems and solving complex problems.  
+        [LinkedIn](#) | [GitHub](#) | [Portfolio](#)
+    """)
+
+# Main content
 st.title("Stephen's Professional Profile Assistant")
 
-# Initialize chat history in session state
+# Initialize chat history
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
 
-# Input section for user queries
-user_input = st.text_input("Ask about experience, skills, or projects...", key="user_input")
+# Chat container
+chat_container = st.container()
+with chat_container:
+    st.markdown('<div class="chat-container">', unsafe_allow_html=True)
+    for chat in st.session_state.chat_history:
+        st.markdown(f"<div class='message-container user-message-container'><div class='message-bubble user-bubble'>{chat['user']}</div></div>", unsafe_allow_html=True)
+        st.markdown(f"<div class='message-container'><div class='message-bubble bot-bubble'>{chat['bot']}</div></div>", unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
 
-# Example quick-select questions
+# User input section
+user_input = st.text_input("Ask about experience, skills, or projects...", key="user_input", on_change=lambda: st.session_state.update({"run_query": True}))
+
+# Example questions for quick selection
 col1, col2, col3, col4 = st.columns(4)
 with col1:
     if st.button("Current role and company?"):
         user_input = "Current role and company?"
+        st.session_state.run_query = True
 with col2:
     if st.button("Technical skills?"):
         user_input = "Technical skills?"
+        st.session_state.run_query = True
 with col3:
     if st.button("Recent projects?"):
         user_input = "Recent projects?"
+        st.session_state.run_query = True
 with col4:
     if st.button("Book recommendations?"):
         user_input = "Book recommendations?"
+        st.session_state.run_query = True
 
-# Button to trigger query processing
-if st.button("Submit"):
-    # Ensure user input exists before processing
-    if user_input:
-        # Process query and append response
-        response = cv_app.query(user_input)
-        st.session_state.chat_history.append({"user": user_input, "bot": response})
-
-# Display chat history dynamically
-for chat in st.session_state.chat_history:
-    st.markdown(
-        f"<div class='message-container user-message-container'><div class='message-bubble user-bubble'>{chat['user']}</div></div>",
-        unsafe_allow_html=True
-    )
-    st.markdown(
-        f"<div class='message-container'><div class='message-bubble bot-bubble'>{chat['bot']}</div></div>",
-        unsafe_allow_html=True
-    )
+# Auto-run query on Enter or button click
+if st.session_state.get("run_query", False) and user_input:
+    response = cv_app.query(user_input)
+    st.session_state.chat_history.append({"user": user_input, "bot": response})
+    st.session_state.run_query = False
+    st.experimental_rerun()
