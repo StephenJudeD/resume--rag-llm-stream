@@ -92,7 +92,16 @@ class CVQueryApp:
 cv_app = CVQueryApp()
 
 # Custom styling
-st.set_page_config(page_title="Stephen's Professional Profile Assistant", page_icon="📄", layout="wide")
+import streamlit as st
+
+# Configure app page
+st.set_page_config(
+    page_title="Stephen's Professional Profile Assistant",
+    page_icon="📄",
+    layout="wide"
+)
+
+# Custom styling for better UI design
 st.markdown(
     """
     <style>
@@ -152,20 +161,21 @@ st.markdown(
             color: #1e293b;
         }
     </style>
-    """, unsafe_allow_html=True
+    """,
+    unsafe_allow_html=True
 )
 
 # Display app title
 st.title("Stephen's Professional Profile Assistant")
 
-# Initialize chat history
+# Initialize chat history in session state
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
 
-# User input section
+# Input section for user queries
 user_input = st.text_input("Ask about experience, skills, or projects...", key="user_input")
 
-# Example questions for quick selection
+# Example quick-select questions
 col1, col2, col3, col4 = st.columns(4)
 with col1:
     if st.button("Current role and company?"):
@@ -180,13 +190,21 @@ with col4:
     if st.button("Book recommendations?"):
         user_input = "Book recommendations?"
 
-# Button to trigger query
+# Button to trigger query processing
 if st.button("Submit"):
+    # Ensure user input exists before processing
     if user_input:
+        # Process query and append response
         response = cv_app.query(user_input)
         st.session_state.chat_history.append({"user": user_input, "bot": response})
 
-# Display chat history
+# Display chat history dynamically
 for chat in st.session_state.chat_history:
-    st.markdown(f"<div class='message-container user-message-container'><div class='message-bubble user-bubble'>{chat['user']}</div></div>", unsafe_allow_html=True)
-    st.markdown(f"<div class='message-container'><div class='message-bubble bot-bubble'>{chat['bot']}</div></div>", unsafe_allow_html=True)
+    st.markdown(
+        f"<div class='message-container user-message-container'><div class='message-bubble user-bubble'>{chat['user']}</div></div>",
+        unsafe_allow_html=True
+    )
+    st.markdown(
+        f"<div class='message-container'><div class='message-bubble bot-bubble'>{chat['bot']}</div></div>",
+        unsafe_allow_html=True
+    )
