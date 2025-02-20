@@ -168,14 +168,16 @@ with st.expander("Quick Questions"):
 
 # Process user input
 if st.session_state.run_query and st.session_state.user_input:
-    response = cv_app.query(st.session_state.user_input)  # Call the actual query function
+    # Trigger the rerun FIRST
+    st.experimental_rerun()  # This will stop the current execution and restart the script
+    
+    # NOW, after the rerun, this block will be executed with the updated state
+    if st.session_state.run_query and st.session_state.user_input: #Check again after the rerun
+        response = cv_app.query(st.session_state.user_input)
 
-    # Append conversation to chat history
-    st.session_state.chat_history.append({"user": st.session_state.user_input, "bot": response})
+        # Append conversation to chat history
+        st.session_state.chat_history.append({"user": st.session_state.user_input, "bot": response})
 
-    # Reset input and rerun query state
-    st.session_state.user_input = ""
-    st.session_state.run_query = False
-
-    # Rerun the script to update UI
-    st.experimental_rerun()
+        # Reset input and query state (important!)
+        st.session_state.user_input = ""
+        st.session_state.run_query = False
