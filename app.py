@@ -99,7 +99,7 @@ st.markdown("""
             background-color: #ffffff;
         }
         .stButton>button {
-            background-color: #0066cc;
+            background-color: #cc7000;
             color: white;
         }
         .css-1q8dd3e {
