@@ -153,5 +153,4 @@ if st.session_state.run_query and st.session_state.user_input:
     st.session_state.chat_history.append({"user": st.session_state.user_input, "bot": response})
     st.session_state.user_input = ""
     st.session_state.run_query = False
-    st.experimental_rerun() = False
     st.experimental_rerun()
