@@ -91,16 +91,20 @@ class CVQueryApp:
 # Initialize the app
 cv_app = CVQueryApp()
 
-# Custom styling
 import streamlit as st
 
-## Custom styling
-# Chat interface
+# Title
 st.title("Stephen's Professional Profile Assistant")
 
-# Initialize chat history
+# Initialize session state variables
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
+
+if "user_input" not in st.session_state:
+    st.session_state.user_input = ""
+
+if "run_query" not in st.session_state:
+    st.session_state.run_query = False
 
 # Chat container
 with st.container():
@@ -113,43 +117,47 @@ with st.container():
 # Input container
 with st.container():
     col1, col2 = st.columns([4, 1])
-    
+
     with col1:
-        user_input = st.chat_input("Ask about my experience, skills, projects or books that I have read...", key="user_input")
-        
+        user_input = st.chat_input("Ask about my experience, skills, projects, or books that I have read...", key="chat_input")
+
     with col2:
-        if st.button("Ask"):
+        if st.button("Ask") and user_input:
             st.session_state.user_input = user_input
             st.session_state.run_query = True
 
-# Quick questions
+# Quick Questions with Full Text
 with st.expander("Quick Questions"):
-    col1, col2, col3, col4 = st.columns(4)
-    
+    col1, col2 = st.columns(2)  # Using 2 columns for better readability
+
     with col1:
-        button1 = st.button("Can you tell me about Stephen current role and how long, in years, he has worked there?")
-        if button1:
-            st.session_state.user_input = "Can you tell me about Stephen current role and how long, in years, he has worked there?"
+        if st.button("Can you tell me about Stephen's current role and how long, in years, he has worked there?"):
+            st.session_state.user_input = "Can you tell me about Stephen's current role and how long, in years, he has worked there?"
             st.session_state.run_query = True
-            
+
+        if st.button("Can you describe some of the technical skills Stephen has and how he applied them in previous roles?"):
+            st.session_state.user_input = "Can you describe some of the technical skills Stephen has and how he applied them in previous roles?"
+            st.session_state.run_query = True
+
     with col2:
-        button2 = st.button("Technical skills?")
-        if button2:
-            st.session_state.user_input = "Can you tell me about some technical skills and how they were applied in previous roles??"
+        if st.button("Can you tell me about some recent side projects Stephen has worked on and what they entailed?"):
+            st.session_state.user_input = "Can you tell me about some recent side projects Stephen has worked on and what they entailed?"
             st.session_state.run_query = True
-            
-    with col3:
-        button3 = st.button("Can you tell me about some recent side projects and what they entailed?")
-        if button3:
-            st.session_state.user_input = "Can you tell me about some recent side projects and what they entailed?"
-            st.session_state.run_query = True
-            
-    with col4:
-        button4 = st.button("Can you tell me some books that Stephen has read?")
-        if button4:
+
+        if st.button("Can you tell me some books that Stephen has read?"):
             st.session_state.user_input = "Can you tell me some books that Stephen has read?"
             st.session_state.run_query = True
-            
-    st.session_state.chat_history.append({"user": user_input, "bot": response})
+
+# Process user input
+if st.session_state.run_query and st.session_state.user_input:
+    response = f"Fetching information for: {st.session_state.user_input}"  # Placeholder response
+
+    # Append conversation to chat history
+    st.session_state.chat_history.append({"user": st.session_state.user_input, "bot": response})
+
+    # Reset input and rerun query state
+    st.session_state.user_input = ""
     st.session_state.run_query = False
+
+    # Rerun the script to update UI
     st.experimental_rerun()
