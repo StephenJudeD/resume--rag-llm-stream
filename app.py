@@ -92,37 +92,11 @@ class CVQueryApp:
 cv_app = CVQueryApp()
 
 import streamlit as st
-import streamlit as st
 
-# ✅ Apply Custom CSS for Loading Animation & Colors
-st.markdown(
-    """
-    <style>
-        /* Chat Message Styling */
-        .chat-container { padding: 10px; border-radius: 10px; margin: 5px 0; }
-        .user-msg { background-color: #DCF8C6; }  /* Light green for user */
-        .bot-msg { background-color: #F1F1F1; }  /* Light grey for bot */
-        
-        /* Loading Animation */
-        @keyframes blink {
-            0% { opacity: 1; }
-            50% { opacity: 0.2; }
-            100% { opacity: 1; }
-        }
-
-        .loading-dots::after {
-            content: " .";
-            animation: blink 1.5s infinite steps(1) alternate;
-        }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
-
-# ✅ Title
+# Title
 st.title("Stephen's Professional Profile Assistant")
 
-# ✅ Initialize Session State Variables
+# Initialize session state variables
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
 
@@ -132,51 +106,58 @@ if "user_input" not in st.session_state:
 if "run_query" not in st.session_state:
     st.session_state.run_query = False
 
-# ✅ Chat UI Container
+# Chat container
 with st.container():
     for message in st.session_state.chat_history:
-        role_class = "user-msg" if message["role"] == "user" else "bot-msg"
-        st.markdown(f'<div class="chat-container {role_class}">{message["content"]}</div>', unsafe_allow_html=True)
+        with st.chat_message("user"):
+            st.write(message["user"])
+        with st.chat_message("assistant"):
+            st.write(message["bot"])
 
-# ✅ Input Container
+# Input container
 with st.container():
     col1, col2 = st.columns([4, 1])
 
     with col1:
-        user_input = st.chat_input("Ask about experience, skills, or projects...", key="chat_input")
+        user_input = st.chat_input("Ask about my experience, skills, projects, or books that I have read...", key="chat_input")
 
     with col2:
         if st.button("Ask") and user_input:
             st.session_state.user_input = user_input
             st.session_state.run_query = True
 
-# ✅ Quick Questions
+# Quick Questions with Full Text
 with st.expander("Quick Questions"):
-    col1, col2 = st.columns(2)
+    col1, col2 = st.columns(2)  # Using 2 columns for better readability
 
     with col1:
-        if st.button("Current Role & Experience?"):
-            st.session_state.user_input = "Can you tell me about Stephen's current role and how long he has worked there?"
+        if st.button("Can you tell me about Stephen's current role and how long, in years, he has worked there?"):
+            st.session_state.user_input = "Can you tell me about Stephen's current role and how long, in years, he has worked there?"
             st.session_state.run_query = True
 
-        if st.button("Technical Skills?"):
-            st.session_state.user_input = "Can you describe some of the technical skills Stephen has?"
+        if st.button("Can you describe some of the technical skills Stephen has and how he applied them in previous roles?"):
+            st.session_state.user_input = "Can you describe some of the technical skills Stephen has and how he applied them in previous roles?"
             st.session_state.run_query = True
 
     with col2:
-        if st.button("Recent Side Projects?"):
-            st.session_state.user_input = "Can you tell me about some recent side projects Stephen has worked on?"
+        if st.button("Can you tell me about some recent side projects Stephen has worked on and what they entailed?"):
+            st.session_state.user_input = "Can you tell me about some recent side projects Stephen has worked on and what they entailed?"
             st.session_state.run_query = True
 
-        if st.button("Books Read?"):
+        if st.button("Can you tell me some books that Stephen has read?"):
             st.session_state.user_input = "Can you tell me some books that Stephen has read?"
             st.session_state.run_query = True
 
-# ✅ Process User Input & Add Loading Message
+# Process user input
 if st.session_state.run_query and st.session_state.user_input:
-    # Display loading message inside chat
-    st.session_state.chat_history.append({"role": "user", "content": st.session_state.user_input})
-    st.session_state.chat_history.append({"role": "bot", "content": '<span class="loading-dots">Fetching information</span>'})
+    response = cv_app.query(st.session_state.user_input)  # Call the actual query function
 
-    # Rerun to update UI
+    # Append conversation to chat history
+    st.session_state.chat_history.append({"user": st.session_state.user_input, "bot": response})
+
+    # Reset input and rerun query state
+    st.session_state.user_input = ""
+    st.session_state.run_query = False
+
+    # Rerun the script to update UI
     st.experimental_rerun()
