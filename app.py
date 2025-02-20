@@ -115,20 +115,14 @@ with st.container():
             st.write(message["bot"])
 
 # Input container
-with st.container():
-    col1, col2 = st.columns([4, 1])
-
-    with col1:
-        user_input = st.chat_input("Ask about my experience, skills, projects, or books that I have read...", key="chat_input")
-
-    with col2:
-        if st.button("Ask") and user_input:
-            st.session_state.user_input = user_input
-            st.session_state.run_query = True
+user_input = st.text_input("Ask about my experience, skills, projects, or books that I have read...")
+if st.button("Ask") and user_input:
+    st.session_state.user_input = user_input
+    st.session_state.run_query = True
 
 # Quick Questions with Full Text
 with st.expander("Quick Questions"):
-    col1, col2 = st.columns(2)  # Using 2 columns for better readability
+    col1, col2 = st.columns(2)
 
     with col1:
         if st.button("Can you tell me about Stephen's current role and how long, in years, he has worked there?"):
