@@ -162,7 +162,7 @@ with st.expander("Quick Questions"):
             st.session_state.user_input = "Can you tell me about some recent side projects Stephen has worked on and what they entailed?"
             st.session_state.run_query = True
 
-        if st.button("Based on the books Stephen has read, what can you infer about his areas of interest?"):
+        if st.button("Based on the books Stephen has read, what can you infer about his interest's?"):
             st.session_state.user_input = "Can you tell me some books that Stephen has read?"
             st.session_state.run_query = True
 
