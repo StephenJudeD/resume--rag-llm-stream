@@ -1,8 +1,5 @@
 # Core Web Framework
-dash==2.18.2
-dash-core-components==2.0.0
-dash-html-components==2.0.0
-dash_bootstrap_components==1.7.1
+streamlit==1.36.0
 
 # RAG and AI Components
 openai==1.63.2
@@ -14,8 +11,5 @@ faiss-cpu==1.10.0
 
 # Utils and Dependencies
 tiktoken==0.9.0
-protobuf
+protobuf==4.25.3
 python-dotenv==1.0.1
-
-# Production Server
-gunicorn
