@@ -77,7 +77,7 @@ class CVQueryApp:
                         "3. If information is not found, clearly state 'Information not found in CV'\n"
                         "4. Maintain chronological accuracy when discussing experience\n"
                         "5. Consider all provided sections before answering\n"
-                        "6. Use relevant links of demos, where applicable, to emphasize skills"
+                        "6. Use relevant links of demos, where applicable, to emphasise skills\n"
                         "7. The only exception is that you can engage in small talk - if the user says 'Hello' etc. respond in a freindly manner, and ask, "what do you want to know about Stephen today?"\n"
                     )},
                     {"role": "user", "content": f"Based on these CV sections:\n{context}\n\nQuestion: {question}"}
