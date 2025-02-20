@@ -136,16 +136,16 @@ with st.expander("Quick Questions"):
             st.session_state.user_input = "Can you tell me about Stephen's current role and how long, in years, he has worked there?"
             st.session_state.run_query = True
 
-        if st.button("Can you describe some of the technical skills Stephen has and how he applied them in previous roles?"):
+        if st.button("Can you describe some of the technical skills Stephen utilised in his current role?"):
             st.session_state.user_input = "Can you describe some of the technical skills Stephen has and how he applied them in previous roles?"
             st.session_state.run_query = True
 
     with col2:
-        if st.button("Can you tell me about some recent side projects Stephen has worked on and what they entailed?"):
+        if st.button("Can you please tell me about some recent side projects and their subject matter?"):
             st.session_state.user_input = "Can you tell me about some recent side projects Stephen has worked on and what they entailed?"
             st.session_state.run_query = True
 
-        if st.button("Can you give me an idea, some context, of the books Stephen has read?"):
+        if st.button("Based on the books Stephen has read, what can you infer about his areas of interest?"):
             st.session_state.user_input = "Can you tell me some books that Stephen has read?"
             st.session_state.run_query = True
 
