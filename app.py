@@ -122,7 +122,7 @@ st.markdown(
             margin-bottom: 1rem;
         }
         .user-message-container {
-            justify-content: flex-end;
+            justify-content: flex-start; /* Changed to flex-start  */
         }
         .message-bubble {
             max-width: 70%;
