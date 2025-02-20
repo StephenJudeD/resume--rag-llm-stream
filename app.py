@@ -94,8 +94,10 @@ cv_app = CVQueryApp()
 import streamlit as st
 
 # Title
-st.title("👨‍💻 Stephen's *(META)* Profile")
-st.info("Retrieval-Augmented Generation (RAG) Insights from CV, Cover Letter, Dissertation, and Goodreads Book List", icon="ℹ️")
+st.title("👨‍💻 Stephen's *(META....)* Profile")
+st.info(
+    "Retrieval-Augmented Generation (RAG) Insights gathered from my CV, Cover Letter, Dissertation, and Goodreads Book List. See the code on [GitHub](https://github.com/StephenJudeD/Resume-Rag)."  # All on one line
+)
 
 # Initialize session state variables
 if "chat_history" not in st.session_state:
