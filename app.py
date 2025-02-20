@@ -150,7 +150,7 @@ with st.expander("Quick Questions"):
 
 # Process user input
 if st.session_state.run_query and st.session_state.user_input:
-    response = f"Fetching information for: {st.session_state.user_input}"  # Placeholder response
+    response = cv_app.query(st.session_state.user_input)  # Call the actual query function
 
     # Append conversation to chat history
     st.session_state.chat_history.append({"user": st.session_state.user_input, "bot": response})
