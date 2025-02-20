@@ -93,27 +93,8 @@ cv_app = CVQueryApp()
 
 import streamlit as st
 
-# Custom Styling
-st.markdown("""
-    <style>
-        .stApp {
-            background-color: #ffffff;
-        }
-        .stButton>button {
-            background-color: #99CCFF;
-            color: white;
-        }
-        .css-1q8dd3e {
-            font-family: 'Helvetica Neue', sans-serif;
-        }
-    </style>
-""", unsafe_allow_html=True)
-
 # Title
-st.title("👨‍💻 Stephen's *(META....)* Profile")
-st.info(
-    "Retrieval-Augmented Generation (RAG) Insights gathered from my CV, Cover Letter, Dissertation, and Goodreads Book List. The code used, and further information, can be found @ [GitHub](https://github.com/StephenJudeD/resume--rag-llm-stream/blob/main/README.md)."  # All on one line
-)
+st.title("Stephen's Professional Profile Assistant")
 
 # Initialize session state variables
 if "chat_history" not in st.session_state:
@@ -150,35 +131,33 @@ with st.expander("Quick Questions"):
     col1, col2 = st.columns(2)  # Using 2 columns for better readability
 
     with col1:
-        if st.button("Can you tell me about Stephen's current role and his main responsibilities?"):
+        if st.button("Can you tell me about Stephen's current role and how long, in years, he has worked there?"):
             st.session_state.user_input = "Can you tell me about Stephen's current role and how long, in years, he has worked there?"
             st.session_state.run_query = True
 
-        if st.button("Can you describe some of the technical skills Stephen utilised in his current role?"):
+        if st.button("Can you describe some of the technical skills Stephen has and how he applied them in previous roles?"):
             st.session_state.user_input = "Can you describe some of the technical skills Stephen has and how he applied them in previous roles?"
             st.session_state.run_query = True
 
     with col2:
-        if st.button("Can you please tell me about some recent side projects and their subject matter?"):
+        if st.button("Can you tell me about some recent side projects Stephen has worked on and what they entailed?"):
             st.session_state.user_input = "Can you tell me about some recent side projects Stephen has worked on and what they entailed?"
             st.session_state.run_query = True
 
-        if st.button("Based on the books Stephen has read, what can you infer about his interest's?"):
+        if st.button("Can you tell me some books that Stephen has read?"):
             st.session_state.user_input = "Can you tell me some books that Stephen has read?"
             st.session_state.run_query = True
 
 # Process user input
 if st.session_state.run_query and st.session_state.user_input:
-    # Check if rerun is needed and process query after state update
-    if not st.session_state.run_query:
-        response = cv_app.query(st.session_state.user_input)
+    response = cv_app.query(st.session_state.user_input)  # Call the actual query function
 
-        # Append conversation to chat history
-        st.session_state.chat_history.append({"user": st.session_state.user_input, "bot": response})
+    # Append conversation to chat history
+    st.session_state.chat_history.append({"user": st.session_state.user_input, "bot": response})
 
-        # Reset input and query state after processing
-        st.session_state.user_input = ""
-        st.session_state.run_query = False
+    # Reset input and rerun query state
+    st.session_state.user_input = ""
+    st.session_state.run_query = False
 
-    # Trigger rerun to prevent page flicker while ensuring state is updated
+    # Rerun the script to update UI
     st.experimental_rerun()
