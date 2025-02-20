@@ -94,6 +94,21 @@ cv_app = CVQueryApp()
 
 import streamlit as st
 
+st.markdown("""
+    <style>
+        .stApp {
+            background-color: #ffffff;
+        }
+        .stButton>button {
+            background-color: #0066cc;
+            color: white;
+        }
+        .css-1q8dd3e {
+            font-family: 'Helvetica Neue', sans-serif;
+        }
+    </style>
+""", unsafe_allow_html=True)
+
 # Title
 st.title("👨‍💻 Stephen's *(META....)* Profile")
 st.info(
