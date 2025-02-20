@@ -93,8 +93,28 @@ cv_app = CVQueryApp()
 
 import streamlit as st
 
+# Custom Styling
+st.markdown("""
+    <style>
+        .stApp {
+            background-color: #ffffff;
+        }
+        .stButton>button {
+            background-color: #99CCFF;
+            color: white;
+        }
+        .css-1q8dd3e {
+            font-family: 'Helvetica Neue', sans-serif;
+        }
+    </style>
+""", unsafe_allow_html=True)
+
 # Title
-st.title("Stephen's Professional Profile Assistant")
+st.title("👨‍💻 Stephen's *(META....)* Profile")
+st.info(
+    "Retrieval-Augmented Generation (RAG) Insights gathered from my CV, Cover Letter, Dissertation, and Goodreads Book List. The code used, and further information, can be found @ [GitHub](https://github.com/StephenJudeD/resume--rag-llm-stream/blob/main/README.md)."  # All on one line
+)
+
 
 # Initialize session state variables
 if "chat_history" not in st.session_state:
