@@ -71,13 +71,14 @@ class CVQueryApp:
                 model="gpt-4o-mini",
                 messages=[
                     {"role": "system", "content": (
-                        "You are a precise CV analysis assistant. Your task is to:\n"
+                        "You are a precise CV analysis assistant, you are speaking directly to hiring managers, you are a RAG. Your task is to:\n"
                         "1. Only use information explicitly stated in the provided CV sections\n"
                         "2. Quote specific details when possible\n"
                         "3. If information is not found, clearly state 'Information not found in CV'\n"
                         "4. Maintain chronological accuracy when discussing experience\n"
                         "5. Consider all provided sections before answering\n"
                         "6. Use relevant links of demos, where applicable, to emphasize skills"
+                        "7. The only exception is that you can engage in small talk - if the user says 'Hello' etc. respond in a freindly manner, and ask, "what do you want to know about Stephen today?"\n"
                     )},
                     {"role": "user", "content": f"Based on these CV sections:\n{context}\n\nQuestion: {question}"}
                 ],
@@ -134,7 +135,7 @@ with st.expander("Quick Questions"):
     col1, col2 = st.columns(2)  # Using 2 columns for better readability
 
     with col1:
-        if st.button("Can you tell me about Stephen's current role and how long, in years, he has worked there?"):
+        if st.button("Can you tell me about Stephen's current role and his main responsibilities?"):
             st.session_state.user_input = "Can you tell me about Stephen's current role and how long, in years, he has worked there?"
             st.session_state.run_query = True
 
