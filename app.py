@@ -177,14 +177,12 @@ st.title("Stephen's Professional Profile Assistant")
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
 
-# Chat container
-chat_container = st.container()
-with chat_container:
-    st.markdown('<div class="chat-container">', unsafe_allow_html=True)
-    for chat in st.session_state.chat_history:
-        st.markdown(f"<div class='message-container user-message-container'><div class='message-bubble user-bubble'>{chat['user']}</div></div>", unsafe_allow_html=True)
-        st.markdown(f"<div class='message-container'><div class='message-bubble bot-bubble'>{chat['bot']}</div></div>", unsafe_allow_html=True)
-    st.markdown('</div>', unsafe_allow_html=True)
+# Chat container  (REMOVED the st.container() and with block)
+st.markdown('<div class="chat-container">', unsafe_allow_html=True)  # No longer indented
+for chat in st.session_state.chat_history:
+    st.markdown(f"<div class='message-container user-message-container'><div class='message-bubble user-bubble'>{chat['user']}</div></div>", unsafe_allow_html=True)  # No longer indented
+    st.markdown(f"<div class='message-container'><div class='message-bubble bot-bubble'>{chat['bot']}</div></div>", unsafe_allow_html=True)  # No longer indented
+st.markdown('</div>', unsafe_allow_html=True) 
 
 # User input section
 user_input = st.text_input("Ask about experience, skills, or projects...", key="user_input", on_change=lambda: st.session_state.update({"run_query": True}))
