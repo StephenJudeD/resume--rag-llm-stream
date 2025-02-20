@@ -139,7 +139,8 @@ with st.container():
     col1, col2 = st.columns([4, 1])
 
     with col1:
-        user_input = st.chat_input("Ask about my experience, skills, projects, or books that I have read...", key="chat_input")
+        # Replace chat_input with text_input
+        user_input = st.text_input("Ask about my experience, skills, projects, or books that I have read...", key="text_input")
 
     with col2:
         if st.button("Ask") and user_input:
