@@ -94,13 +94,6 @@ cv_app = CVQueryApp()
 # Custom styling
 import streamlit as st
 
-# Configure app page
-st.set_page_config(
-    page_title="Stephen's Professional Profile Assistant",
-    page_icon="📄",
-    layout="wide"
-)
-
 ## Custom styling
 st.set_page_config(page_title="Stephen's Professional Profile Assistant", page_icon="📄", layout="wide")
 st.markdown(
