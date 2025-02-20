@@ -94,7 +94,7 @@ cv_app = CVQueryApp()
 import streamlit as st
 
 # Title
-st.title("👨‍💻 Stephen's Professional Profile")
+st.title("👨‍💻 Stephen's *(META)* Professional Profile")
 st.info("📚 Retrieval-Augmented Generation (RAG) Insights from 💼 CV, 📄 Cover Letter, 🎓 Dissertation, and 📖 Goodreads Book List", icon="💡")
 
 # Initialize session state variables
