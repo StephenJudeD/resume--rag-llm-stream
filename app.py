@@ -99,15 +99,11 @@ st.markdown("""
             background-color: #ffffff;
         }
         .stButton>button {
-            background-color: #ff4d00;
+            background-color: #0066cc;
             color: white;
         }
         .css-1q8dd3e {
             font-family: 'Helvetica Neue', sans-serif;
-        }
-        /* This ensures text stays visible */
-        div[data-testid="stMarkdown"] {
-            color: #ffffff;
         }
     </style>
 """, unsafe_allow_html=True)
