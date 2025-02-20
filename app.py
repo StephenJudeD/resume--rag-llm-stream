@@ -94,8 +94,8 @@ cv_app = CVQueryApp()
 import streamlit as st
 
 # Title
-st.title("👨‍💻 Stephen's *(META)* Professional Profile")
-st.info("📚 Retrieval-Augmented Generation (RAG) Insights from 💼 CV, 📄 Cover Letter, 🎓 Dissertation, and 📖 Goodreads Book List", icon="💡")
+st.title("👨‍💻 Stephen's *(META)* Profile")
+st.info("Retrieval-Augmented Generation (RAG) Insights from CV, Cover Letter, Dissertation, and Goodreads Book List", icon="ℹ️")
 
 # Initialize session state variables
 if "chat_history" not in st.session_state:
@@ -145,7 +145,7 @@ with st.expander("Quick Questions"):
             st.session_state.user_input = "Can you tell me about some recent side projects Stephen has worked on and what they entailed?"
             st.session_state.run_query = True
 
-        if st.button("Can you tell me some books that Stephen has read?"):
+        if st.button("Can you give me an idea, some context, of the books Stephen has read?"):
             st.session_state.user_input = "Can you tell me some books that Stephen has read?"
             st.session_state.run_query = True
 
