@@ -111,7 +111,7 @@ st.markdown("""
 # Title
 st.title("👨‍💻 Stephen's *(META....)* Profile")
 st.info(
-    "Retrieval-Augmented Generation (RAG) Insights gathered from my CV, Cover Letter, Dissertation, and Goodreads Book List. See the code on [GitHub](https://github.com/StephenJudeD/Resume-Rag)."  # All on one line
+    "Retrieval-Augmented Generation (RAG) Insights gathered from my CV, Cover Letter, Dissertation, and Goodreads Book List. The code used, and further information, can be found @ [GitHub](https://github.com/StephenJudeD/resume--rag-llm-stream/blob/main/README.md)."  # All on one line
 )
 
 # Initialize session state variables
