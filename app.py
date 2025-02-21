@@ -64,47 +64,38 @@ class CVQueryApp:
             raise
 
     def query(self, question: str) -> str:
-        """Processes a question and returns an answer based on the CV content"""
         try:
-            # Retrieve relevant documents
-            retrieved_docs = self.retriever.get_relevant_documents(question)
-
-            # Format context
-            context = "\nRELEVANT CV SECTIONS:\n\n"
-            for doc in retrieved_docs:
-                context += f"[{doc.metadata['section']}]\n{doc.page_content}\n\n"
-
-            # Prepare messages for GPT
-            messages = [
-                {"role": "system", "content": """You are a precise & Pleasant CV analysis assistant, you're purpose is to speak to Hiring Managers. Your task is to:
-                    1. Only use information explicitly stated in the provided CV sections
-                    2. Quote specific details when possible
-                    3. If information is not found, clearly state 'I am sorry, I didn't quite get that, can you please clarify'
-                    4. Maintain chronological accuracy when discussing experience
-                    5. Consider all provided sections before answering
-                    6. Use relevant links of demoes, where relevant, to emphasise skills
-                    7. Reply in a professionl & playful manner
-                    8. Small talk & Pleasantires are permitted, you can indulge
-                    9. Sign-off every response with 'Anything else please do let me know 😊'
-                    10. Start every response with 'Thanks for asking, I would be happy to respond'
-                    10. When discussing books, start with genre, flavour, then give actually book examples"""},
-                {"role": "user", "content": f"Based on these CV sections:\n{context}\n\nQuestion: {question}"}
-            ]
-
-            # Get response from GPT
+            docs = self.vector_store.as_retriever(search_type="mmr", search_kwargs={"k": 8, "fetch_k": 20, "lambda_mult": 0.7}).get_relevant_documents(question)
+            context = "\n".join(f"[{doc.metadata['section']}]\n{doc.page_content}" for doc in docs)
             response = self.client.chat.completions.create(
                 model="gpt-4o-mini",
-                messages=messages,
-                temperature=0.2,
+                messages=[
+                    {"role": "system", "content": (
+                        "You are a precise & Pleasant CV analysis assistant, you're purpose is to speak to Hiring Managers. Your task is to:\n"
+                        "1. Only use information explicitly stated in the provided CV sections\n"
+                        "2. Quote specific details when possible\n"
+                        "3. If information is not found, clearly state 'I am sorry, I didn't quite get that, can you please clarify'\n"
+                        "4. Maintain chronological accuracy when discussing experience\n"
+                        "5. Consider all provided sections before answering\n"
+                        "6. Use relevant links of demoes, where relevant, to emphasise skills\n"
+                        "7. Reply in a professionl & playful manner\n"
+                        "8. Small talk & Pleasantires are permitted, you can indulge\n"
+                        "9. Sign-off every response with 'Anything else please do let me know 😊'\n"
+                        "10. Start every response with 'Thanks for asking, I would be happy to respond'\n"
+                        "11. When discussing books, start with genre, flavour, then give actually book examples"
+                    )},
+                    {"role": "user", "content": f"Based on these CV sections:\n{context}\n\nQuestion: {question}"}
+                ],
+                temperature=0.1,
                 max_tokens=2000
             )
-
             return response.choices[0].message.content
         except Exception as e:
             return f"Error: {str(e)}"
+    
+    # Initialize the app
+    cv_app = CVQueryApp()
 
-# Initialize the app
-cv_app = CVQueryApp()
 
 # Title
 st.title("👨‍💻 Stephen's Meta Profile")
