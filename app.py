@@ -93,41 +93,41 @@ class CVQueryApp:
         except Exception as e:
             return f"Error: {str(e)}"
 
-# Initialize chat history FIRST
+import streamlit as st
+
+# Initialize chat history
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# Then initialize app components
+# Initialize app components (ensure CVQueryApp is imported/defined)
 cv_app = CVQueryApp()
 
-# Sidebar control goes HERE (after title but before chat history)
+# Display title and app info
 st.title("🤖 **Stephen-DS** _{AI Career Explorer}_")
 st.info("""
 RAG-Powered Insights from CV, Cover Letter, Dissertation & Goodreads Code repository → [GitHub](https://github.com/StephenJudeD/resume--rag-llm-stream) 🔼
 """)
 
-# Add sidebar section
+# Sidebar control for clearing chat history
 with st.sidebar:
     if st.button("🧹 Clear Chat History", help="Start a new conversation"):
         st.session_state.messages = []
-        st.rerun()
+        st.experimental_rerun()
 
-# Query handling 
+# Handle user query
 if prompt := st.chat_input("Ask about my experience, skills, projects, or books..."):
+    # Append user's message to chat history
     st.session_state.messages.append({"role": "user", "content": prompt})
-    
-    with st.chat_message("user"):
-        st.markdown(prompt)
 
-    with st.chat_message("assistant"):
-        with st.spinner("🔍 Analyzing your question..."):  # Added spinner
-            response = cv_app.query(prompt)
-        st.markdown(response)
-        st.toast("✅ Response ready!", icon="🤖")  # Added toast
+    # Process the query without immediate inline rendering of messages
+    with st.spinner("🔍 Analyzing your question..."):
+        response = cv_app.query(prompt)
+    st.toast("✅ Response ready!", icon="🤖")
     
+    # Append assistant's response to chat history
     st.session_state.messages.append({"role": "assistant", "content": response})
 
-# Display chat messages from history
+# Display chat conversation from history only once
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
