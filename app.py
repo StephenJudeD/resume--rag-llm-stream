@@ -97,8 +97,11 @@ class CVQueryApp:
 cv_app = CVQueryApp()
 
 # Title
-st.title("👨‍💻 Stephen's Meta Profile")
-st.info("Retrieval-Augmented Generation (RAG) Insights gathered from my CV, Cover Letter, Dissertation, and Goodreads Book List. The code used, and further information, can be found @ GitHub")
+st.title("🤖 **Stephen-DS** _{Your AI-Powered Career Explorer}_")
+st.info("""
+RAG-Powered Insights from CV, Cover Letter, Dissertation & Goodreads  
+Code repository → [GitHub](https://github.com/StephenJudeD/resume--rag-llm-stream) 🔼
+""")
 
 # Initialize chat history
 if "messages" not in st.session_state:
