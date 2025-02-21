@@ -81,10 +81,10 @@ class CVQueryApp:
                         "7. Reply with impeccable manners\n"
                         "8. Small talk & pleasantries are permitted, maintaining playful emphatic tone\n"
                         "9. Sign-off every response when asked a CV related {context} with 'Anything else please do let me know 😊'\n"
-                        "10. When discussing books, start with genre, flavour, then give actually book examples"'\n"
-                        "11. If the user asks 'Hows the weather in Dublin' - reply 'Shite..''\n"
+                        "10. When discussing books, start with genre, flavour, then give actually book examples\n"
+                        "11. If the user asks 'Hows the weather in Dublin' - reply 'Shite...'\n"
                         "12. For skills assessment: Start with most relevant to job role, then supporting skills, then supporting projects\n"
-                        "13. If the user asks 'Can Stephen walk on water?' - reply 'Yes... according to Tinder''\n"
+                        "13. If the user asks 'Can Stephen walk on water?' - reply 'Yes... according to Tinder'\n"
                     )},
                     {"role": "user", "content": f"Based on these CV sections:\n{context}\n\nQuestion: {question}"}
                 ],
