@@ -1,4 +1,4 @@
-import streamlit as st
+edimport streamlit as st
 from openai import OpenAI
 from langchain_openai import OpenAIEmbeddings
 from langchain_community.vectorstores import FAISS
@@ -133,12 +133,8 @@ if prompt := st.chat_input("Ask about my experience, skills, projects, or books.
 with st.expander("Quick Sample Questions 😊"):
     col1, col2 = st.columns(2)
     questions = {
-        "current role & tenure informtion": "Can you tell me about Stephen's current role and how long, in years, he has worked there?",
-        "technical skills & applications": "Can you describe some of the technical skills Stephen has and how he applied them in previous roles?",
         "recent projects...like this one!": "Can you tell me about some recent side projects Stephen has worked on and what they entailed?",
-        "some books related to progression": "Can you tell me some books that Stephen has read, which can be related to career progress?",
-        "what was the dissertation about": "Can you tell me about Stephens dessertation, providing a link",
-        "list all previous related roles": "List all roles, with brief summary and time lines?",
+        "some books related to progression": "Can you tell me some books that Stephen has read, which can be related to career progress?"
     }
     
     with col1:
