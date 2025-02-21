@@ -96,37 +96,42 @@ class CVQueryApp:
 # Initialize the app
 cv_app = CVQueryApp()
 
-# Title
+
+# Error handling 
+try:
+    cv_app = CVQueryApp()
+except Exception as e:
+    st.error(f"🚨 Initialization Error: {str(e)}")
+    st.stop()
+
+# Sidebar control goes HERE (after title but before chat history)
 st.title("🤖 **Stephen-DS** _{AI Career Explorer}_")
 st.info("""
 RAG-Powered Insights from CV, Cover Letter, Dissertation & Goodreads Code repository → [GitHub](https://github.com/StephenJudeD/resume--rag-llm-stream) 🔼
 """)
 
-# Initialize chat history
-if "messages" not in st.session_state:
-    st.session_state.messages = []
+# Addsidebar section
+with st.sidebar:
+    if st.button("🧹 Clear Chat History", help="Start a new conversation"):
+        st.session_state.messages = []
+        st.rerun()
 
-# Display chat messages from history
-for message in st.session_state.messages:
-    with st.chat_message(message["role"]):
-        st.markdown(message["content"])
-
-# Handle user input
+# query handling 
 if prompt := st.chat_input("Ask about my experience, skills, projects, or books..."):
-    # Add user message to chat history
     st.session_state.messages.append({"role": "user", "content": prompt})
     
-    # Display user message
     with st.chat_message("user"):
         st.markdown(prompt)
 
-    # Get and display assistant response
     with st.chat_message("assistant"):
-        response = cv_app.query(prompt)
+        with st.spinner("🔍 Analyzing your question..."):  # Added spinner
+            response = cv_app.query(prompt)
         st.markdown(response)
+        st.toast("✅ Response ready!", icon="🤖")  # Added toast
     
-    # Add assistant response to chat history
     st.session_state.messages.append({"role": "assistant", "content": response})
+
+# Keep everything else exactly as you have it...
 
 # Quick Questions
 with st.expander("Quick Sample Questions 😊"):
