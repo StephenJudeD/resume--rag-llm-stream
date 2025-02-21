@@ -1,0 +1,7 @@
+[theme]
+base = "dark"  # Options are "light" or "dark"
+primaryColor = "#4B8BBE"  # A professional accent color (IBM Blue)
+backgroundColor = "#161925"  # Dark navy background
+secondaryBackgroundColor = "#2D3142"  # For the sidebar and widgets
+textColor = "#FDFFFC"  # Clean white text for good contrast
+font = "sans serif"  # Available options: "sans serif", "serif", "monospace"
