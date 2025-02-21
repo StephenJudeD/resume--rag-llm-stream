@@ -100,7 +100,11 @@ class CVQueryApp:
             )
 
 # Initialize the app
-cv_app = CVQueryApp()
+try:
+    cv_app = CVQueryApp()
+except Exception as e:
+    logger.error(f"Error creating CVQueryApp instance: {str(e)}")
+    raise
 
 # Title
 st.title("👨‍💻 Stephen's Meta Profile")
