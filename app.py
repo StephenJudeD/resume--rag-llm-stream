@@ -1,4 +1,4 @@
-edimport streamlit as st
+import streamlit as st
 from openai import OpenAI
 from langchain_openai import OpenAIEmbeddings
 from langchain_community.vectorstores import FAISS
