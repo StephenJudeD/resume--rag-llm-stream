@@ -99,12 +99,12 @@ class CVQueryApp:
                 max_tokens=2000
             )
 
+            return response.choices[0].message.content
+        except Exception as e:
+            return f"Error: {str(e)}"
+
 # Initialize the app
-try:
-    cv_app = CVQueryApp()
-except Exception as e:
-    logger.error(f"Error creating CVQueryApp instance: {str(e)}")
-    raise
+cv_app = CVQueryApp()
 
 # Title
 st.title("👨‍💻 Stephen's Meta Profile")
