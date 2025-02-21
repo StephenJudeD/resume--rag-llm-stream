@@ -100,21 +100,19 @@ if "messages" not in st.session_state:
 # Then initialize app components
 cv_app = CVQueryApp()
 
-# Rest of your existing code below...
-
 # Sidebar control goes HERE (after title but before chat history)
 st.title("🤖 **Stephen-DS** _{AI Career Explorer}_")
 st.info("""
 RAG-Powered Insights from CV, Cover Letter, Dissertation & Goodreads Code repository → [GitHub](https://github.com/StephenJudeD/resume--rag-llm-stream) 🔼
 """)
 
-# Addsidebar section
+# Add sidebar section
 with st.sidebar:
     if st.button("🧹 Clear Chat History", help="Start a new conversation"):
         st.session_state.messages = []
         st.rerun()
 
-# query handling 
+# Query handling 
 if prompt := st.chat_input("Ask about my experience, skills, projects, or books..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
     
@@ -129,32 +127,7 @@ if prompt := st.chat_input("Ask about my experience, skills, projects, or books.
     
     st.session_state.messages.append({"role": "assistant", "content": response})
 
-# Keep everything else exactly as you have it...
-
-# Quick Questions
-with st.expander("Quick Sample Questions 😊"):
-    col1, col2 = st.columns(2)
-    questions = {
-        "recent projects...like this one!": "Can you tell me about some recent side projects Stephen has worked on and what they entailed?",
-        "some books related to progression": "Can you tell me some books that Stephen has read, which can be related to career progress?"
-    }
-    
-    with col1:
-        for q in list(questions.keys())[:2]:
-            if st.button(q):
-                st.session_state.messages.append({"role": "user", "content": questions[q]})
-                with st.chat_message("assistant"):
-                    response = cv_app.query(questions[q])
-                    st.markdown(response)
-                st.session_state.messages.append({"role": "assistant", "content": response})
-                st.rerun()
-    
-    with col2:
-        for q in list(questions.keys())[2:]:
-            if st.button(q):
-                st.session_state.messages.append({"role": "user", "content": questions[q]})
-                with st.chat_message("assistant"):
-                    response = cv_app.query(questions[q])
-                    st.markdown(response)
-                st.session_state.messages.append({"role": "assistant", "content": response})
-                st.rerun()
+# Display chat messages from history
+for message in st.session_state.messages:
+    with st.chat_message(message["role"]):
+        st.markdown(message["content"])
