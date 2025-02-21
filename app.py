@@ -102,8 +102,6 @@ class CVQueryApp:
 # Initialize the app
 cv_app = CVQueryApp()
 
-import streamlit as st
-
 # Title
 st.title("👨‍💻 Stephen's Meta Profile")
 st.info(
