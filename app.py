@@ -93,8 +93,8 @@ class CVQueryApp:
         except Exception as e:
             return f"Error: {str(e)}"
     
-    # Initialize the app
-    cv_app = CVQueryApp()
+# Initialize the app
+cv_app = CVQueryApp()
 
 
 # Title
