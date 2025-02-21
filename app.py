@@ -112,14 +112,16 @@ RAG-Powered Insights from CV, Cover Letter, Dissertation & Goodreads! Code repos
 with st.sidebar:
     if st.button("🧹 Clear Chat History", help="Start a new conversation"):
         st.session_state.messages = []
-        st.experimental_rerun()
+        st.rerun()
 
     # ideas for users here
     st.markdown("### Ideas to Ask")
     st.markdown("""
-    - "What are Stephen's key technical skills?"
-    - "Tell me more about Stephen's recent projects."
-    - "What does Stephen's experience indicate about his career progression?"
+    - "What does Stephen's Goodreads book list reveal about his personal interests and continual learning?"
+    - "Tell me more about Stephen's recent side projects and their implemetation"
+    - "Are there any recurring themes that indicate what drives his professional passion?"
+    - "Can you infer how Stephen’s hobbies and reading choices align with his professional skills?"
+    - "What are the main research contributions highlighted in Stephen's dissertation?
     """)
 
 # Handle user query
