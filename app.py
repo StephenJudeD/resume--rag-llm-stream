@@ -114,6 +114,14 @@ with st.sidebar:
         st.session_state.messages = []
         st.experimental_rerun()
 
+    # ideas for users here
+    st.markdown("### Ideas to Ask")
+    st.markdown("""
+    - "What are Stephen's key technical skills?"
+    - "Tell me more about Stephen's recent projects."
+    - "What does Stephen's experience indicate about his career progression?"
+    """)
+
 # Handle user query
 if prompt := st.chat_input("Ask about my experience, skills, projects, or books..."):
     # Append user's message to chat history
