@@ -93,16 +93,14 @@ class CVQueryApp:
         except Exception as e:
             return f"Error: {str(e)}"
 
-# Initialize the app
+# Initialize chat history FIRST
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+
+# Then initialize app components
 cv_app = CVQueryApp()
 
-
-# Error handling 
-try:
-    cv_app = CVQueryApp()
-except Exception as e:
-    st.error(f"🚨 Initialization Error: {str(e)}")
-    st.stop()
+# Rest of your existing code below...
 
 # Sidebar control goes HERE (after title but before chat history)
 st.title("🤖 **Stephen-DS** _{AI Career Explorer}_")
