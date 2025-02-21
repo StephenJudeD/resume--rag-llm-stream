@@ -105,7 +105,7 @@ cv_app = CVQueryApp()
 # Display title and app info
 st.title("🤖 **Stephen-DS** _{AI Career Explorer}_")
 st.info("""
-RAG-Powered Insights from CV, Cover Letter, Dissertation & Goodreads Code repository → [GitHub](https://github.com/StephenJudeD/resume--rag-llm-stream) 🔼
+RAG-Powered Insights from CV, Cover Letter, Dissertation & Goodreads! Code repository → [GitHub](https://github.com/StephenJudeD/resume--rag-llm-stream) 🔼
 """)
 
 # Sidebar control for clearing chat history
