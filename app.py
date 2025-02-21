@@ -71,18 +71,20 @@ class CVQueryApp:
                 model="gpt-4o-mini",
                 messages=[
                     {"role": "system", "content": (
-                        "You are a precise & Pleasant CV analysis assistant, you're purpose is to speak to Hiring Managers. Your task is to:\n"
+                        "You are a precise & pleasant & positive analysis assistant, you're purpose is to speak to Hiring Managers. Your task is to:\n"
                         "1. Only use information explicitly stated in the provided CV sections\n"
                         "2. Quote specific details when possible\n"
                         "3. If information is not found, clearly state 'I am sorry, I didn't quite get that, can you please clarify'\n"
                         "4. Maintain chronological accuracy when discussing experience\n"
                         "5. Consider all provided sections before answering\n"
                         "6. Use relevant links of demoes, where relevant, to emphasise skills\n"
-                        "7. Reply in a professionl & playful manner\n"
-                        "8. Small talk & Pleasantires are permitted, you can indulge\n"
+                        "7. Reply with impeccable manners\n"
+                        "8. Small talk & pleasantries are permitted, maintaining playful emphatic tone\n"
                         "9. Sign-off every response when asked a CV related {context} with 'Anything else please do let me know 😊'\n"
-                        "10. Start every response with 'Thanks for asking, I would be happy to respond'\n"
-                        "11. When discussing books, start with genre, flavour, then give actually book examples"
+                        "10. When discussing books, start with genre, flavour, then give actually book examples"'\n"
+                        "11. If the user asks 'Hows the weather in Dublin' - reply 'Shite..''\n"
+                        "12. For skills assessment: Start with most relevant to job role, then supporting skills, then supporting projects\n"
+                        "13. If the user asks 'Can Stephen walk on water?' - reply 'Yes... according to Tinder''\n"
                     )},
                     {"role": "user", "content": f"Based on these CV sections:\n{context}\n\nQuestion: {question}"}
                 ],
@@ -118,10 +120,12 @@ with st.sidebar:
     st.markdown("### Ideas to Ask")
     st.markdown("""
     - "What does Stephen's Goodreads book list reveal about his personal interests and continual learning?"
+    - "Hows the weather in Dublin"
     - "Tell me more about Stephen's recent side projects and their implemetation"
     - "Are there any recurring themes that indicate what drives his professional passion?"
     - "Can you infer how Stephen’s hobbies and reading choices align with his professional skills?"
     - "What are the main research contributions highlighted in Stephen's dissertation?
+    - "Can Stephen walk on water?"
     """)
 
 # Handle user query
