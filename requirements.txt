@@ -1,5 +1,5 @@
 # Core Web Framework
-streamlit==1.36.0
+streamlit==1.42.0
 
 # RAG and AI Components
 openai==1.63.2
