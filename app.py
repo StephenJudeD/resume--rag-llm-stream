@@ -37,7 +37,7 @@ def download_index_folder(bucket_name, source_folder, destination_dir):
 # Load the vector store
 def load_vector_store(embeddings):
     bucket_name = os.getenv("GCS_BUCKET_NAME", "ragsd-resume-bucket")
-    index_path = os.getenv("GCS_INDEX_PATH", "faiss_indexes/cv_index_text-embedding-3-large")
+    index_path = os.getenv("GCS_INDEX_PATH", "faiss_indexes/cv_index_text-embedding-3-large_v2")
     destination_folder = "/tmp/faiss_index"
     download_index_folder(bucket_name, index_path, destination_folder)
     contents = os.listdir(destination_folder)
@@ -64,29 +64,40 @@ class CVQueryApp:
             raise
 
     def query(self, question: str) -> str:
+        """Processes a question and returns an answer based on the CV content"""
         try:
-            docs = self.vector_store.as_retriever(search_type="mmr", search_kwargs={"k": 8, "fetch_k": 20, "lambda_mult": 0.7}).get_relevant_documents(question)
-            context = "\n".join(f"[{doc.metadata['section']}]\n{doc.page_content}" for doc in docs)
+            # Retrieve relevant documents
+            retrieved_docs = self.retriever.get_relevant_documents(question)
+
+            # Format context
+            context = "\nRELEVANT CV SECTIONS:\n\n"
+            for doc in retrieved_docs:
+                context += f"[{doc.metadata['section']}]\n{doc.page_content}\n\n"
+
+            # Prepare messages for GPT
+            messages = [
+                {"role": "system", "content": """You are a precise & Pleasant CV analysis assistant, you're purpose is to speak to Hiring Managers. Your task is to:
+                    1. Only use information explicitly stated in the provided CV sections
+                    2. Quote specific details when possible
+                    3. If information is not found, clearly state 'I am sorry, I didn't quite get that, can you please clarify'
+                    4. Maintain chronological accuracy when discussing experience
+                    5. Consider all provided sections before answering
+                    6. Use relevant links of demoes, where relevant, to emphasise skills
+                    7. Reply in a professionl & playful manner
+                    8. Small talk & Pleasantires are permitted, you can indulge
+                    9. Sign-off every response with 'Anything else please do let me know 😊'
+                    10. Start every response with 'Thanks for asking, I would be happy to respond'
+                    10. When discussing books, start with genre, flavour, then give actually book examples"""},
+                {"role": "user", "content": f"Based on these CV sections:\n{context}\n\nQuestion: {question}"}
+            ]
+
+            # Get response from GPT
             response = self.client.chat.completions.create(
                 model="gpt-4o-mini",
-                messages=[
-                    {"role": "system", "content": (
-                        "You are a precise CV analysis assistant. Your task is to:\n"
-                        "1. Only use information explicitly stated in the provided CV sections\n"
-                        "2. Quote specific details when possible\n"
-                        "3. If information is not found, clearly state 'Information not found in CV'\n"
-                        "4. Maintain chronological accuracy when discussing experience\n"
-                        "5. Consider all provided sections before answering\n"
-                        "6. Use relevant links of demos, where applicable, to emphasize skills"
-                    )},
-                    {"role": "user", "content": f"Based on these CV sections:\n{context}\n\nQuestion: {question}"}
-                ],
-                temperature=0.1,
+                messages=messages,
+                temperature=0.2,
                 max_tokens=2000
             )
-            return response.choices[0].message.content
-        except Exception as e:
-            return f"Error: {str(e)}"
 
 # Initialize the app
 cv_app = CVQueryApp()
