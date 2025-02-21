@@ -97,10 +97,9 @@ class CVQueryApp:
 cv_app = CVQueryApp()
 
 # Title
-st.title("🤖 **Stephen-DS** _{Your AI-Powered Career Explorer}_")
+st.title("🤖 **Stephen-DS** _{AI Career Explorer}_")
 st.info("""
-RAG-Powered Insights from CV, Cover Letter, Dissertation & Goodreads  
-Code repository → [GitHub](https://github.com/StephenJudeD/resume--rag-llm-stream) 🔼
+RAG-Powered Insights from CV, Cover Letter, Dissertation & Goodreads Code repository → [GitHub](https://github.com/StephenJudeD/resume--rag-llm-stream) 🔼
 """)
 
 # Initialize chat history
