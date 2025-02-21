@@ -38,7 +38,7 @@ def download_index_folder(bucket_name, source_folder, destination_dir):
 def load_vector_store(embeddings):
     bucket_name = os.getenv("GCS_BUCKET_NAME", "ragsd-resume-bucket")
     #index_path = os.getenv("GCS_INDEX_PATH", "faiss_indexes/cv_index_text-embedding-3-large_v2")
-    index_path = os.getenv("GCS_INDEX_PATH", "faiss_indexes/cv_index_text-embedding-v1")
+    index_path = os.getenv("GCS_INDEX_PATH", "faiss_indexes/cv_index_text-embedding-v2")
     
     destination_folder = "/tmp/faiss_index"
     download_index_folder(bucket_name, index_path, destination_folder)
