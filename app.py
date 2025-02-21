@@ -93,25 +93,16 @@ class CVQueryApp:
         except Exception as e:
             return f"Error: {str(e)}"
     
-# Initialize the app
+# Initialize the app and session state
 cv_app = CVQueryApp()
-
 
 # Title
 st.title("👨‍💻 Stephen's Meta Profile")
-st.info(
-    "Retrieval-Augmented Generation (RAG) Insights gathered from my CV, Cover Letter, Dissertation, and Goodreads Book List. The code used, and further information, can be found @ [GitHub](https://github.com/StephenJudeD/resume--rag-llm-stream/blob/main/README.md)"
-)
+st.info("Retrieval-Augmented Generation (RAG) Insights gathered from my CV, Cover Letter, Dissertation, and Goodreads Book List. The code used, and further information, can be found @ GitHub")
 
-# Initialize session state variables
+# Initialize chat history
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
-
-if "user_input" not in st.session_state:
-    st.session_state.user_input = ""
-
-if "run_query" not in st.session_state:
-    st.session_state.run_query = False
 
 # Chat container
 with st.container():
@@ -121,35 +112,37 @@ with st.container():
         with st.chat_message("assistant"):
             st.write(message["bot"])
 
+# Input handling
+def handle_query(query):
+    response = cv_app.query(query)
+    st.session_state.chat_history.append({"user": query, "bot": response})
+
 # Input container
 col1, col2 = st.columns([4, 1])
 with col1:
-    user_input = st.text_input("Ask about my experience, skills, projects, or books that I have read...", key="text_input")
+    user_input = st.text_input(
+        "Ask about my experience, skills, projects, or books that I have read...",
+        key="text_input",  # Directly bind to session_state.text_input
+        value=st.session_state.get("text_input", "")
+    )
 with col2:
     if st.button("Ask") and user_input:
-        st.session_state.user_input = user_input
-        st.session_state.run_query = True
+        handle_query(user_input)
+        st.session_state.text_input = ""  # Clear input field
 
 # Quick Questions
 with st.expander("Quick Questions"):
     col1, col2 = st.columns(2)
     with col1:
-        if st.button("Can you tell me about Stephen's current role and how long, in years, he has worked there?"):
-            st.session_state.user_input = "Can you tell me about Stephen's current role and how long, in years, he has worked there?"
-            st.session_state.run_query = True
-
-        if st.button("Can you describe some of the technical skills Stephen has and how he applied them in previous roles?"):
-            st.session_state.user_input = "Can you describe some of the technical skills Stephen has and how he applied them in previous roles?"
-            st.session_state.run_query = True
-
+        if st.button("Current role & tenure"):
+            handle_query("Can you tell me about Stephen's current role and how long, in years, he has worked there?")
+        if st.button("Technical skills"):
+            handle_query("Can you describe some of the technical skills Stephen has and how he applied them in previous roles?")
     with col2:
-        if st.button("Can you tell me about some recent side projects Stephen has worked on and what they entailed?"):
-            st.session_state.user_input = "Can you tell me about some recent side projects Stephen has worked on and what they entailed?"
-            st.session_state.run_query = True
-
-        if st.button("Can you tell me some books that Stephen has read?"):
-            st.session_state.user_input = "Can you tell me some books that Stephen has read?"
-            st.session_state.run_query = True
+        if st.button("Recent projects"):
+            handle_query("Can you tell me about some recent side projects Stephen has worked on and what they entailed?")
+        if st.button("Books read"):
+            handle_query("Can you tell me some books that Stephen has read?")
 
 # Process user input
 if st.session_state.run_query and st.session_state.user_input:
