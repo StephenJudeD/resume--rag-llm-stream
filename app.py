@@ -121,9 +121,10 @@ with st.sidebar:
     # ideas for users here
     st.markdown("### Ideas to Ask")
     st.markdown("""
+    - Can you infer an overview of technical and non-technical skills relating to his most recent role?"
     - "What does Stephen's Goodreads book list reveal about his personal interests and continual learning?"
-    - "Hows the weather in Dublin"
-    - "Tell me more about Stephen's recent side projects and their implemetation"
+    - "How's the weather in Dublin"
+    - "Tell me more about recent side projects and their implementation"
     - "Are there any recurring themes that indicate what drives his professional passion?"
     - "Can you infer how Stephen’s hobbies and reading choices align with his professional skills?"
     - "What are the main research contributions highlighted in Stephen's dissertation?
