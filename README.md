@@ -9,7 +9,7 @@ Welcome to Stephen's Meta App---an interactive platform designed for hiring man
 Technologies Used
 -----------------
 
--   Streamlit: For creating an interactive web application.
+-   Streamlit: For creating an interactive web application. https://docs.streamlit.io/develop/tutorials/chat-and-llm-apps/build-conversational-apps 
 -   OpenAI: To leverage powerful language models for generating contextual responses based on user queries.
 -   FAISS: A library for efficient similarity search and clustering of dense vectors, utilized to manage document embeddings.
 -   Google Cloud Storage (GCS): For storing and managing the underlying vector data securely.
