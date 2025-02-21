@@ -103,7 +103,7 @@ if "messages" not in st.session_state:
 cv_app = CVQueryApp()
 
 # Display title and app info
-st.title("🤖 **Stephen-DS** _{AI Career Explorer}_")
+st.title("🤖 **Stephen-DS** _{AI Profile Explorer}_")
 st.info("""
 RAG-Powered Insights from CV, Cover Letter, Dissertation & Goodreads! Code repository → [GitHub](https://github.com/StephenJudeD/resume--rag-llm-stream) 🔼
 """)
