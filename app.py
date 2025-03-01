@@ -59,75 +59,99 @@ class CVQueryApp:
             if not api_key:
                 raise ValueError("OPENAI_API_KEY not found!")
             self.client = OpenAI(api_key=api_key)
+            # Optionally, you could use a different embedding model name
             self.embeddings = OpenAIEmbeddings(model="text-embedding-3-large", openai_api_key=api_key)
             self.vector_store = load_vector_store(self.embeddings)
         except Exception as e:
             logger.error(f"Error initializing CVQueryApp: {str(e)}")
             raise
 
-    def query(self, question: str) -> str:
+    def query(self, question: str) -> (str, str):
         try:
-            docs = self.vector_store.as_retriever(search_type="mmr", search_kwargs={"k": 8, "fetch_k": 20, "lambda_mult": 0.7}).get_relevant_documents(question)
-            context = "\n".join(f"[{doc.metadata['section']}]\n{doc.page_content}" for doc in docs)
+            docs = self.vector_store.as_retriever(
+                search_type="mmr", 
+                search_kwargs={"k": 8, "fetch_k": 20, "lambda_mult": 0.7}
+            ).get_relevant_documents(question)
+            
+            context = "\n".join(
+                f"[{doc.metadata['section']}]\n{doc.page_content}" for doc in docs
+            )
+            # Updated system prompt includes clear chain of thought (CoT) instructions.
+            system_prompt = (
+                "You are a precise, pleasant, and respectful analysis assistant for Hiring Managers. "
+                "Your task is to analyze the provided CV sections using the following instructions:\n\n"
+                "1. Use only the information explicitly given in the provided sections.\n"
+                "2. Quote specific details when possible.\n"
+                "3. If information is missing, clearly state: 'I am sorry, I didn't quite get that, can you please clarify?'\n"
+                "4. Keep your answer chronologically accurate.\n"
+                "5. Consider all the provided sections before answering.\n"
+                "6. When appropriate, include relevant demo links to emphasize skills.\n"
+                "7. Use impeccable manners. Small talk and pleasantries are permitted in a playful tone.\n"
+                "8. Sign-off every response with 'Anything else please do let me know 😊' after the final answer.\n"
+                "9. **Chain-of-thought instructions:** First, provide 3 succinct bullet points under 'Reasoning:' detailing your thought process. "
+                "Then, after a clear marker, provide your 'Final Answer:' for the hiring manager.\n\n"
+                "Please format your reply as follows:\n\n"
+                "Reasoning:\n- Bullet point 1\n- Bullet point 2\n- Bullet point 3\n\n"
+                "Final Answer: [Your final answer here]\n"
+            )
+            
+            messages = [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": f"Based on these CV sections:\n{context}\n\nQuestion: {question}"}
+            ]
+            
+            # NOTE: Switching to GPT-3.5 Turbo for better cost-performance balance
             response = self.client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=[
-                    {"role": "system", "content": (
-                        "You are a precise & pleasant & positive analysis assistant, you're purpose is to speak to Hiring Managers. Your task is to:\n"
-                        "1. Only use information explicitly stated in the provided CV sections\n"
-                        "2. Quote specific details when possible\n"
-                        "3. If information is not found, clearly state 'I am sorry, I didn't quite get that, can you please clarify'\n"
-                        "4. Maintain chronological accuracy when discussing experience\n"
-                        "5. Consider all provided sections before answering\n"
-                        "6. Use relevant links of demoes, where relevant, to emphasise skills\n"
-                        "7. Reply with impeccable manners\n"
-                        "8. Small talk & pleasantries are permitted, maintaining playful emphatic tone\n"
-                        "9. Sign-off every response when asked a CV related {context} with 'Anything else please do let me know 😊'\n"
-                        "10. When discussing books, start with genre, flavour, then give actually book examples\n"
-                        "11. If the user asks 'Hows the weather in Dublin' - reply 'Shite...'\n"
-                        "12. For skills assessment: Start with most relevant to job role, then supporting skills, then supporting projects\n"
-                        "13. If the user asks 'Can Stephen walk on water?' - reply 'Yes... according to Tinder'\n"
-                    )},
-                    {"role": "user", "content": f"Based on these CV sections:\n{context}\n\nQuestion: {question}"}
-                ],
+                model="gpt-3.5-turbo",
+                messages=messages,
                 temperature=0.1,
                 max_tokens=2000
             )
-            return response.choices[0].message.content
+            
+            full_response = response.choices[0].message.content
+            
+            # Attempt to split the answer into promo (final answer) and reasoning parts
+            if "Final Answer:" in full_response:
+                reasoning_part, promo_part = full_response.split("Final Answer:", 1)
+                reasoning_part = reasoning_part.replace("Reasoning:", "").strip()
+                promo_part = promo_part.strip()
+            else:
+                # Fallback if markers aren't detected.
+                reasoning_part = ""
+                promo_part = full_response
+            
+            return promo_part, reasoning_part
         except Exception as e:
-            return f"Error: {str(e)}"
-
-import streamlit as st
+            logger.error(f"Error in query: {str(e)}")
+            return f"Error: {str(e)}", ""
 
 # Initialize chat history
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# Initialize app components (ensure CVQueryApp is imported/defined)
+# Initialize app components
 cv_app = CVQueryApp()
 
 # Display title and app info
 st.title("🤖 **Stephen-DS** _{AI Profile Explorer}_")
 st.info("""
-RAG-Powered Insights from CV, Cover Letter, Dissertation & Goodreads! Code repository → [GitHub](https://github.com/StephenJudeD/resume--rag-llm-stream) 🔼
+RAG-Powered Insights from CV, Cover Letter, Dissertation & Goodreads!  
+Repository → [GitHub](https://github.com/StephenJudeD/resume--rag-llm-stream) 🔼
 """)
 
 # Sidebar control for clearing chat history
 with st.sidebar:
     if st.button("🧹 Clear Chat History", help="Start a new conversation"):
         st.session_state.messages = []
-        st.rerun()
+        st.experimental_rerun()
 
-    # ideas for users here
     st.markdown("### Ideas to Ask")
     st.markdown("""
-    - Can you infer an overview of technical and non-technical skills relating to his most recent role?"
-    - "What does Stephen's Goodreads book list reveal about his personal interests and continual learning?"
+    - "Can you infer an overview of technical and non-technical skills relating to his most recent role?"
+    - "What does Stephen's Goodreads book list reveal about his personal interests?"
     - "How's the weather in Dublin"
-    - "Tell me more about recent side projects and their implementation"
-    - "Are there any recurring themes that indicate what drives his professional passion?"
-    - "Can you infer how Stephen’s hobbies and reading choices align with his professional skills?"
-    - "What are the main research contributions highlighted in Stephen's dissertation?
+    - "Tell me about recent side projects and their implementation"
+    - "Are there recurring themes that indicate what drives his professional passion?"
     - "Can Stephen walk on water?"
     """)
 
@@ -135,16 +159,21 @@ with st.sidebar:
 if prompt := st.chat_input("Ask about my experience, skills, projects, or books..."):
     # Append user's message to chat history
     st.session_state.messages.append({"role": "user", "content": prompt})
-
-    # Process the query without immediate inline rendering of messages
+    
     with st.spinner("🔍 Analyzing your question..."):
-        response = cv_app.query(prompt)
+        promo, reasoning = cv_app.query(prompt)
+    
     st.toast("✅ Response ready!", icon="🤖")
     
-    # Append assistant's response to chat history
-    st.session_state.messages.append({"role": "assistant", "content": response})
+    # Append the promo (final answer) to chat history
+    st.session_state.messages.append({"role": "assistant", "content": promo})
+    
+    # Optionally, display the chain-of-thought reasoning in an expander
+    if reasoning:
+        with st.expander("Show chain-of-thought reasoning"):
+            st.markdown(reasoning)
 
-# Display chat conversation from history only once
+# Display chat conversation from history
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
