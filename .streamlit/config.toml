@@ -1,0 +1,6 @@
+[theme]
+primaryColor = "#2A9D8F"  # Professional teal
+backgroundColor = "#FFFFFF"  # Clean white
+secondaryBackgroundColor = "#F8F9FA"  # Light gray
+textColor = "#2B2D42"  # Dark navy
+font = "sans serif"  # Correct generic font family
