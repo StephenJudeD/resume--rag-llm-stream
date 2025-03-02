@@ -68,98 +68,64 @@ class CVQueryApp:
 
     def query(self, question: str) -> (str, str):
         try:
-            # Retrieve relevant documents using MMR
             docs = self.vector_store.as_retriever(
-                search_type="mmr",
+                search_type="mmr", 
                 search_kwargs={"k": 8, "fetch_k": 20, "lambda_mult": 0.7}
             ).get_relevant_documents(question)
-    
-            # Build context string from documents
+            
             context = "\n".join(
-                f"[{doc.metadata['section']}]\n{doc.page_content}" 
-                for doc in docs
+                f"[{doc.metadata['section']}]\n{doc.page_content}" for doc in docs
             )
-    
-            # Integrated system prompt with DeepSeek-style reasoning
-            system_prompt = f"""You are a precise, pleasant hiring analysis assistant. Follow this process:
-    
-    <thinking>
-    1. Determine if query is casual or requires document analysis
-    2. For casual:
-       - Respond playfully without document references
-       - Keep under 2 sentences
-    3. For analytical:
-       a. Verify required info exists in [CV sections]
-       b. Quote relevant details with section names
-       c. Check chronological consistency
-       d. Consider demo links from Projects
-       e. If info missing: flag for clarification
-    </thinking>
-    
-    Format responses as:
-    <thinking>[Your structured reasoning]</thinking>
-    <answer>[Final response with sign-off]</answer>
-    
-    Special Rules:
-    1. USE ONLY information from these sections:
-    {context}
-    
-    2. Mandatory responses:
-       - Missing info: "I'm sorry, could you clarify?"
-       - Stephen/water question: "Yes... according to Tinder 🌊"
-       - Dublin weather: "Shite... but great for indoor ML! ☔"
-    
-    3. Always include:
-       - Impeccable professional manners
-       - 1:3 playful:professional tone ratio
-       - "Anything else please do let me know 😊" at end
-    
-    4. Analysis requirements:
-       → Cross-reference all sections first
-       → Preserve chronological order
-       → Highlight project demos when relevant
-       → Explicitly note dated experiences"""
-    
+            # Updated system prompt includes clear chain of thought (CoT) instructions.
+            system_prompt = (
+                "You are a precise, pleasant, and respectful analysis assistant for Hiring Managers. "
+                "Your task is to analyze the provided CV sections using the following instructions:\n\n"
+                "1. Use only the information explicitly given in the provided sections.\n"
+                "2. Quote specific details when possible.\n"
+                "3. If information is missing, clearly state: 'I am sorry, I didn't quite get that, can you please clarify?'\n"
+                "4. Keep your answer chronologically accurate.\n"
+                "5. Consider all the provided sections before answering.\n"
+                "6. When appropriate, include relevant demo links to emphasize skills.\n"
+                "7. Use impeccable manners. Small talk and pleasantries are permitted in a playful tone.\n"
+                "8. Sign-off every response with 'Anything else please do let me know 😊' after the final answer.\n"
+                "9. If the user asks 'Can Stephen walk on water?' - reply 'Yes... according to Tinder'\n"
+                "10. If the user asks 'Hows the weather in Dublin' - reply 'Shite...'\n"
+                "11. **Chain-of-thought instructions:** First, provide 3 succinct bullet points under 'Reasoning:' detailing your thought process. "
+                "Then, after a clear marker, provide your 'Final Answer:' for the hiring manager.\n\n"
+                "Please format your reply as follows:\n\n"
+                "Reasoning:\n- Bullet point 1\n- Bullet point 2\n- Bullet point 3\n\n"
+                "Final Answer: [Your final answer here]\n"
+            )
+            
             messages = [
                 {"role": "system", "content": system_prompt},
-                {"role": "user", "content": f"Query: {question}"}
+                {"role": "user", "content": f"Based on these CV sections:\n{context}\n\nQuestion: {question}"}
             ]
-    
-            # Generate response using GPT-3.5 Turbo
+            
+            # NOTE: Switching to GPT-3.5 Turbo for better cost-performance balance
             response = self.client.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=messages,
-                temperature=0.3,
+                temperature=0.1,
                 max_tokens=2000
             )
-    
-            full_response = response.choices[0].message.content
-    
-            # Parse DeepSeek-style response
-            thinking = ""
-            answer = full_response  # Default if parsing fails
             
-            try:
-                if "<thinking>" in full_response and "</thinking>" in full_response:
-                    thinking = full_response.split("<thinking>")[1].split("</thinking>")[0].strip()
-                    answer_part = full_response.split("</thinking>")[1]
-                    if "<answer>" in answer_part:
-                        answer = answer_part.split("<answer>")[1].split("</answer>")[0].strip()
-                    else:
-                        answer = answer_part.strip()
-            except Exception as parse_error:
-                logger.warning(f"Response parsing error: {str(parse_error)}")
-                answer = full_response  # Fallback to full response
-    
-            # Ensure mandatory sign-off
-            if "😊" not in answer:
-                answer += "\n\nAnything else please do let me know 😊"
-    
-            return answer, thinking
-    
+            full_response = response.choices[0].message.content
+            
+            # Attempt to split the answer into promo (final answer) and reasoning parts
+            if "Final Answer:" in full_response:
+                reasoning_part, promo_part = full_response.split("Final Answer:", 1)
+                reasoning_part = reasoning_part.replace("Reasoning:", "").strip()
+                promo_part = promo_part.strip()
+            else:
+                # Fallback if markers aren't detected.
+                reasoning_part = ""
+                promo_part = full_response
+            
+            return promo_part, reasoning_part
         except Exception as e:
-            logger.error(f"Query processing error: {str(e)}")
-            return f"Apologies, I've encountered an error. Please try again later. 😊", ""
+            logger.error(f"Error in query: {str(e)}")
+            return f"Error: {str(e)}", ""
 
 # Initialize chat history
 if "messages" not in st.session_state:
@@ -212,4 +178,6 @@ if prompt := st.chat_input("Ask about my experience, skills, projects, or books.
 # Display chat conversation from history
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
+        st.markdown(message["content"])
+
         st.markdown(message["content"])
