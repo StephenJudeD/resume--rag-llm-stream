@@ -1,7 +1,17 @@
+#[theme]
+#base = "light"  # Explicit light mode activation
+#primaryColor = "#FF6B6B"       # Energetic coral (pop)
+#accentColor = "#FFD93D"        # Sunny yellow (attention)
+#backgroundColor = "#FFFFFF"    # Crisp white
+#secondaryBackgroundColor = "#F8F9FA"  # Airy light gray
+#textColor = "#2B2D42"          # Professional navy
+#font = "sans serif" # Optional for brand consistency
+
 [theme]
-primaryColor = "#2A9D8F"         # Professional teal remains for a strong primary color
-accentColor = "#E76F51"          # Bold accent to highlight key elements (e.g., headings, call-to-action elements)
-backgroundColor = "#FFFACD"      # Clean white background for clarity and spaciousness #FFFACD "#FFFFFF" 
-secondaryBackgroundColor = "#F8F9FA"  # Light gray to create subtle visual separation
-textColor = "#2B2D42"            # Dark navy for readability and professionalism
-font = "Roboto, sans-serif"      # Modern, clean, and highly legible font for a contemporary look
+base = "dark"  # ← Crucial dark mode activation
+primaryColor = "#2A9D8F"     # Maintains brand consistency
+accentColor = "#E76F51"      # Warm contrast for CTAs
+backgroundColor = "#121212"  # True dark (not pure black)
+secondaryBackgroundColor = "#1E1E1E"  # Rich dark gray
+textColor = "#E0E0E0"        # Soft white for readability
+font = "sans serif"          # Streamlit-safe font declaration
