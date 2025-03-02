@@ -2,6 +2,6 @@
 primaryColor = "#2A9D8F"         # Professional teal remains for a strong primary color
 accentColor = "#E76F51"          # Bold accent to highlight key elements (e.g., headings, call-to-action elements)
 backgroundColor = "#FFFFFF"      # Clean white background for clarity and spaciousness
-secondaryBackgroundColor = "#F8F9FA"  # Light gray to create subtle visual separation
+secondaryBackgroundColor = "#59de6d"  # Light gray to create subtle visual separation
 textColor = "#2B2D42"            # Dark navy for readability and professionalism
 font = "Roboto, sans-serif"      # Modern, clean, and highly legible font for a contemporary look
