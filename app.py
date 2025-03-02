@@ -102,11 +102,11 @@ class CVQueryApp:
                 {"role": "user", "content": f"Based on these CV sections:\n{context}\n\nQuestion: {question}"}
             ]
             
-            # NOTE: Switching to GPT-3.5 Turbo for better cost-performance balance
+            # NOTE: gpt-4o-mini or gpt-3.5-turbo
             response = self.client.chat.completions.create(
-                model="gpt-3.5-turbo",
+                model="gpt-4o-mini",
                 messages=messages,
-                temperature=0.1,
+                temperature=0.3,
                 max_tokens=2000
             )
             
