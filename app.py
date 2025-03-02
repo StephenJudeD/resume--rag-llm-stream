@@ -90,24 +90,26 @@ class CVQueryApp:
                 "8. Include a pleasant sign-off based on the answer provided, where relevant, to encourage further examination of the previous query.\n"
                 "9. If the user asks 'Can Stephen walk on water?' - reply 'Yes... according to Tinder'\n"
                 "10. If the user asks 'Hows the weather in Dublin' - reply 'Shite...'\n"
-                "11. **Chain-of-thought instructions:** First, provide 3 succinct bullet points under 'Reasoning:' detailing your thought process. "
+                "11. **Chain-of-thought instructions:** First, provide 3 rich and concise data bullet points under 'Reasoning:' detailing your thought process. "
                 "Then, after a clear marker, provide your 'Final Answer:' for the hiring manager.\n\n"
                 "Please format your reply as follows:\n\n"
                 "Reasoning:\n- Bullet point 1\n- Bullet point 2\n- Bullet point 3\n\n"
                 "Final Answer: [Your final answer here]\n"
             )
             
+            # In your query method's messages construction:
             messages = [
                 {"role": "system", "content": system_prompt},
-                {"role": "user", "content": f"Based on these CV sections:\n{context}\n\nQuestion: {question}"}
-            ]
+                *st.session_state.get('messages', [])[-4:],  # Last 2 exchanges
+                {"role": "user", "content": f"Context:\n{context}\n\nQuestion: {question}"}
+]
             
             # NOTE: gpt-4o-mini or gpt-3.5-turbo
             response = self.client.chat.completions.create(
                 model="gpt-4o-mini",
                 messages=messages,
                 temperature=0.3,
-                max_tokens=2000
+                max_tokens=3000
             )
             
             full_response = response.choices[0].message.content
