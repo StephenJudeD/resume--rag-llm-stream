@@ -78,7 +78,7 @@ class CVQueryApp:
             )
             # Updated system prompt includes clear chain of thought (CoT) instructions.
             system_prompt = (
-                "You are a precise, pleasant, and respectful analysis assistant for Hiring Managers. "
+                "You are a concise, pleasant, and respectful analysis assistant for Hiring Managers to encourage them to hire Stephen, providing detailed answers where necessary. "
                 "Your task is to analyze the provided CV sections using the following instructions:\n\n"
                 "1. Use only the information explicitly given in the provided sections.\n"
                 "2. Quote specific details when possible.\n"
@@ -93,7 +93,7 @@ class CVQueryApp:
                 "11. **Chain-of-thought instructions:** First, provide 3 succinct bullet points under 'Reasoning:' detailing your thought process. "
                 "Then, after a clear marker, provide your 'Final Answer:' for the hiring manager.\n\n"
                 "Please format your reply as follows:\n\n"
-                "Reasoning:\n- Bullet point 1\n- Bullet point 2\n- Bullet point 3\n\n- Bullet point 4\n\n"
+                "Reasoning:\n- Bullet point 1\n- Bullet point 2\n- Bullet point 3\n\n"
                 "Final Answer: [Your final answer here]\n"
             )
             
@@ -170,7 +170,7 @@ if prompt := st.chat_input("Ask about my experience, skills, projects, or books.
     # Append the promo (final answer) to chat history
     st.session_state.messages.append({"role": "assistant", "content": promo})
     
-    # Optionally, display the chain-of-thought reasoning in an expander
+    # display the chain-of-thought reasoning in an expander
     if reasoning:
         with st.expander("Show chain-of-thought reasoning"):
             st.markdown(reasoning)
