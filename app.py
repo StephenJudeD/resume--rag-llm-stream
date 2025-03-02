@@ -87,13 +87,13 @@ class CVQueryApp:
                 "5. Consider all the provided sections before answering.\n"
                 "6. When appropriate, include relevant demo links to emphasize skills.\n"
                 "7. Use impeccable manners. Small talk and pleasantries are permitted in a playful tone.\n"
-                "8. Sign-off every response with 'Anything else please do let me know 😊' after the final answer.\n"
+                "8. Include a pleasant sign-off based on the answer provided, where relevant, to encourage further examination of the previous query.\n"
                 "9. If the user asks 'Can Stephen walk on water?' - reply 'Yes... according to Tinder'\n"
                 "10. If the user asks 'Hows the weather in Dublin' - reply 'Shite...'\n"
                 "11. **Chain-of-thought instructions:** First, provide 3 succinct bullet points under 'Reasoning:' detailing your thought process. "
                 "Then, after a clear marker, provide your 'Final Answer:' for the hiring manager.\n\n"
                 "Please format your reply as follows:\n\n"
-                "Reasoning:\n- Bullet point 1\n- Bullet point 2\n- Bullet point 3\n\n"
+                "Reasoning:\n- Bullet point 1\n- Bullet point 2\n- Bullet point 3\n\n- Bullet point 4\n\n"
                 "Final Answer: [Your final answer here]\n"
             )
             
