@@ -110,7 +110,7 @@ class CVQueryApp:
                 model="gpt-3.5-turbo",
                 messages=messages,
                 temperature=0.3,
-                max_tokens=5000
+                max_tokens=4096
             )
             
             full_response = response.choices[0].message.content
