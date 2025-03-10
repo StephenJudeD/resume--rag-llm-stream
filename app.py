@@ -142,7 +142,7 @@ st.info("""
 Explore Stephen's profile through AI-powered insights. **Start chatting now!**
 
 RAG-Powered Insights from CV, Cover Letter, Dissertation & Goodreads!
-Repository → [GitHub](https://github.com/StephenJudeD/resume--rag-llm-stream) 🔼
+Repository → [GitHub](https://github.com/StephenJudeD/resume--rag-llm-stream) 🚀
 """)
 
 # Sidebar control for clearing chat history
@@ -166,10 +166,10 @@ if prompt := st.chat_input("Ask about my experience, skills, projects, or books.
     # Append user's message to chat history
     st.session_state.messages.append({"role": "user", "content": prompt})
     
-    with st.spinner("🔍 Analyzing your question..."):
+    with st.spinner("🪇 Analyzing your question..."):
         promo, reasoning = cv_app.query(prompt)
     
-    st.toast("✅ Response ready!", icon="🤖")
+    st.toast("😎 Response ready!", icon="🤖")
     
     # Append the promo (final answer) to chat history
     st.session_state.messages.append({"role": "assistant", "content": promo})
