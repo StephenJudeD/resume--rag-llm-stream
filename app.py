@@ -106,10 +106,10 @@ class CVQueryApp:
             
             # NOTE: gpt-4o-mini or gpt-3.5-turbo
             response = self.client.chat.completions.create(
-                model="gpt-4o-mini",
+                model="gpt-3.5-turbo",
                 messages=messages,
                 temperature=0.3,
-                max_tokens=3000
+                max_tokens=5000
             )
             
             full_response = response.choices[0].message.content
