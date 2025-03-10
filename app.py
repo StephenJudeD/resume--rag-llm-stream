@@ -140,6 +140,7 @@ cv_app = CVQueryApp()
 st.title("🤖 **Stephen-DS** _{AI Profile Explorer}_")
 st.info("""
 Explore Stephen's profile through AI-powered insights. **Start chatting now!**
+
 RAG-Powered Insights from CV, Cover Letter, Dissertation & Goodreads!
 Repository → [GitHub](https://github.com/StephenJudeD/resume--rag-llm-stream) 🔼
 """)
