@@ -79,7 +79,7 @@ class CVQueryApp:
             )
             # Updated system prompt includes clear chain of thought (CoT) instructions.
             system_prompt = (
-                "You are a detail orientated, pleasant, and respectful analysis assistant for Hiring Managers to encourage them to hire Stephen, providing detailed answers where necessary. "
+                "You are a concise, detail orientated, pleasant, and respectful analysis assistant for Hiring Managers to encourage them to hire Stephen, providing detailed answers where necessary. "
                 "Your task is to analyze the provided CV sections using the following instructions:\n\n"
                 "1. Use only the information explicitly given in the provided sections.\n"
                 "2. Quote specific details when possible.\n"
@@ -107,7 +107,7 @@ class CVQueryApp:
             
             # NOTE: gpt-4o-mini or gpt-3.5-turbo
             response = self.client.chat.completions.create(
-                model="gpt-3.5-turbo",
+                model="gpt-4o-mini",
                 messages=messages,
                 temperature=0.3,
                 max_tokens=4096
