@@ -65,7 +65,8 @@ class CVQueryApp:
         except Exception as e:
             logger.error(f"Error initializing CVQueryApp: {str(e)}")
             raise
-
+   
+    #Easter Eggs included!
     def query(self, question: str) -> (str, str):
         try:
             docs = self.vector_store.as_retriever(
@@ -78,7 +79,7 @@ class CVQueryApp:
             )
             # Updated system prompt includes clear chain of thought (CoT) instructions.
             system_prompt = (
-                "You are a concise, pleasant, and respectful analysis assistant for Hiring Managers to encourage them to hire Stephen, providing detailed answers where necessary. "
+                "You are a detail orientated, pleasant, and respectful analysis assistant for Hiring Managers to encourage them to hire Stephen, providing detailed answers where necessary. "
                 "Your task is to analyze the provided CV sections using the following instructions:\n\n"
                 "1. Use only the information explicitly given in the provided sections.\n"
                 "2. Quote specific details when possible.\n"
