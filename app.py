@@ -147,7 +147,7 @@ Repository → [GitHub](https://github.com/StephenJudeD/resume--rag-llm-stream) 
 with st.sidebar:
     if st.button("🧹 Clear Chat History", help="Start a new conversation"):
         st.session_state.messages = []
-        st.experimental_rerun()
+        st.rerun()
 
     st.markdown("### Ideas to Ask")
     st.markdown("""
