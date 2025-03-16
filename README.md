@@ -1,7 +1,7 @@
 **Stephen's Meta App: AI-Powered Resume Explorer**
 ==================================================
 
-**GitHub Repository:** [StephenJudeD/resume--rag-llm-stream]([https://github.com/StephenJudeD/resume--rag-llm-stream](https://resume-query-8b3a2410fcfb.herokuapp.com/))
+**APP:** [StephenJudeD/resume--rag-llm-stream]([https://resume-query-8b3a2410fcfb.herokuapp.com/])
 
 * * * * *
 
