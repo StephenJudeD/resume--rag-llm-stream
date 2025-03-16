@@ -72,77 +72,100 @@ def optimize_query(raw_query: str, client: OpenAI) -> str:
         # Fallback: return the raw query if rewriting fails
         return raw_query
 
-# Define CVQueryApp class using the main RAG logic
-class CVQueryApp:
-    def __init__(self):
-        try:
-            api_key = os.getenv("OPENAI_API_KEY")
-            if not api_key:
-                raise ValueError("OPENAI_API_KEY not found!")
-            self.client = OpenAI(api_key=api_key)
-            self.embeddings = OpenAIEmbeddings(model="text-embedding-3-large", openai_api_key=api_key)
-            self.vector_store = load_vector_store(self.embeddings)
-        except Exception as e:
-            logger.error(f"Error initializing CVQueryApp: {str(e)}")
-            raise
-   
-    def query(self, question: str) -> (str, str):
-        try:
-            docs = self.vector_store.as_retriever(
-                search_type="mmr", 
-                search_kwargs={"k": 8, "fetch_k": 20, "lambda_mult": 0.7}
-            ).get_relevant_documents(question)
-            
-            context = "\n".join(
-                f"[{doc.metadata['section']}]\n{doc.page_content}" for doc in docs
-            )
+def query(self, question: str) -> (str, str):
+    """
+    Processes a query by retrieving relevant documents, constructing a main system prompt and
+    a separate chain-of-thought (CoT) prompt, and then parsing the response into reasoning and final answer.
 
-            system_prompt = (
-                "You are a concise, pleasant, and respectful analysis assistant for Hiring Managers to encourage them to hire Stephen, providing detailed answers supported by examples from the provided documents. "
-                "Your task is to analyze the provided CV, book list, dissertation summary and cover letter sections using the following instructions:\n\n"
-                "1. Use only the information given in the provided sections.\n"
-                "2. Quote specific details when possible, providing examples.\n"
-                "3. If information is missing, clearly state: 'I am sorry, I didn't quite get that, can you please clarify?'\n"
-                "4. Keep your answer chronologically accurate.\n"
-                "5. Consider all the provided sections before answering.\n"
-                "6. When appropriate, include relevant demo links to emphasize skills.\n"
-                "7. Use impeccable manners. Small talk and pleasantries are permitted in a playful tone.\n"
-                "8. Include a pleasant sign-off to encourage further engagement, where relevant.\n"
-                "9. If the user asks 'Can Stephen walk on water?' - reply 'Yes... according to Tinder'\n"
-                "10. If the user asks 'Hows the weather in Dublin' - reply 'Shite...'\n"
-                "11. **Chain-of-thought instructions:** First, provide 3 rich and concise data bullet points under 'Reasoning:' detailing your thought process. Then, after a clear marker, provide your 'Final Answer:' for the hiring manager.\n\n"
-                "Please format your reply as follows:\n\n"
-                "Reasoning:\n- Bullet point 1\n- Bullet point 2\n- Bullet point 3\n\n"
-                "Final Answer: [Your final answer here]\n"
-            )
-            
-            messages = [
-                {"role": "system", "content": system_prompt},
-                *st.session_state.get('messages', [])[-4:],  # Includes the last few exchanges if present
-                {"role": "user", "content": f"Context:\n{context}\n\nQuestion: {question}"}
-            ]
-            
-            response = self.client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=messages,
-                temperature=0.3,
-                max_tokens=4096
-            )
-            
-            full_response = response.choices[0].message.content
-            
-            if "Final Answer:" in full_response:
-                reasoning_part, promo_part = full_response.split("Final Answer:", 1)
-                reasoning_part = reasoning_part.replace("Reasoning:", "").strip()
-                promo_part = promo_part.strip()
-            else:
-                reasoning_part = ""
-                promo_part = full_response
-            
-            return promo_part, reasoning_part
-        except Exception as e:
-            logger.error(f"Error in query: {str(e)}")
-            return f"Error: {str(e)}", ""
+    Parameters:
+        question (str): The user question regarding Stephen's profile.
+
+    Returns:
+        tuple: A tuple containing the final answer and the internal reasoning steps.
+    """
+    try:
+        # Retrieve relevant documents from the vector store.
+        docs = self.vector_store.as_retriever(
+            search_type="mmr", 
+            search_kwargs={"k": 8, "fetch_k": 20, "lambda_mult": 0.7}
+        ).get_relevant_documents(question)
+        
+        # Construct context by joining document sections and content.
+        context = "\n".join(
+            f"[{doc.metadata['section']}]\n{doc.page_content}" for doc in docs
+        )
+        
+        # Main system prompt: sets up the role and instructions for the analysis.
+        main_system_prompt = (
+            "You are a concise, pleasant, and respectful analysis assistant for Hiring Managers "
+            "to encourage them to hire Stephen. Your role is to provide detailed answers supported by examples "
+            "from the provided documents, which include a CV, a book list, a dissertation summary, and a cover letter.\n\n"
+            "Instructions for the analysis:\n"
+            "1. Use only the information given in the provided sections.\n"
+            "2. Quote specific details when possible, providing examples.\n"
+            "3. If information is missing, state: 'I am sorry, I didn't quite get that, can you please clarify?'\n"
+            "4. Keep your answer chronologically accurate.\n"
+            "5. Consider all the provided sections before answering.\n"
+            "6. When appropriate, include relevant demo links to emphasize skills.\n"
+            "7. Use impeccable manners; small talk and pleasantries are permitted in a playful tone.\n"
+            "8. Include a pleasant sign-off to encourage further engagement, when relevant.\n"
+            "9. If the user asks 'Can Stephen walk on water?', reply 'Yes... according to Tinder'.\n"
+            "10. If the user asks 'Hows the weather in Dublin', reply 'Shite...'.\n"
+        )
+        
+        # chain-of-thought prompt: guiding the model's internal reasoning.
+        chain_of_thought_prompt = (
+            "Chain-of-Thought: Think Before Answering.\n"
+            "Instructions:\n"
+            "a. First, provide 3 rich and concise bullet points that outline your reasoning with examples from the context.\n"
+            "b. Then, after a clear separator, provide your 'Final Answer:' for the hiring manager.\n\n"
+            "Please format the output as follows:\n\n"
+            "Reasoning:\n"
+            "- Bullet point 1\n"
+            "- Bullet point 2\n"
+            "- Bullet point 3\n\n"
+            "Final Answer: [Your final answer here]\n"
+        )
+        
+        # For better context, retrieve the last few conversation messages if available.
+        conversation_history = st.session_state.get('messages', [])[-4:]
+        
+        # Combine both prompts into the messages list. Notice that the two system messages
+        # are separate, which allows independent updating of the core instructions and reasoning guidelines.
+        messages = [
+            {"role": "system", "content": main_system_prompt},
+            {"role": "system", "content": chain_of_thought_prompt},
+            *conversation_history,
+            {"role": "user", "content": f"Context:\n{context}\n\nQuestion: {question}"}
+        ]
+        
+        # Create the chat completion with the provided messages.
+        response = self.client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=messages,
+            temperature=0.3,
+            max_tokens=4096
+        )
+        
+        # Extract the full response from the language model.
+        full_response = response.choices[0].message.content
+        
+        # Parse the response into reasoning (chain-of-thought) and final answer segments.
+        if "Final Answer:" in full_response:
+            reasoning_part, final_answer_part = full_response.split("Final Answer:", 1)
+            # Remove the "Reasoning:" header and trim whitespace.
+            reasoning_part = reasoning_part.replace("Reasoning:", "").strip()
+            final_answer_part = final_answer_part.strip()
+        else:
+            reasoning_part = ""
+            final_answer_part = full_response
+        
+        return final_answer_part, reasoning_part
+
+    except Exception as e:
+        # Log and return a descriptive error if something goes wrong.
+        logger.error(f"Error in query: {str(e)}")
+        return f"Error: {str(e)}", ""
 
 # Initialize chat history if not present
 if "messages" not in st.session_state:
