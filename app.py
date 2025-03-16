@@ -59,10 +59,11 @@ def optimize_query(raw_query: str, client: OpenAI) -> str:
             f"Query: {raw_query}"
         )
         response = client.chat.completions.create(
-            model="gpt-4o-mini",  
+            model="gpt-4o-mini",
             messages=[{"role": "system", "content": rewriting_prompt}],
-            temperature=0.3,
-            max_tokens=150
+            temperature=0.1,
+            max_tokens=1000,
+            top_p=0.9 # Add your top_p value here
         )
         optimized_query = response.choices[0].message.content.strip()
         logger.debug(f"Optimized query: {optimized_query}")
