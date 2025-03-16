@@ -87,62 +87,62 @@ class CVQueryApp:
             raise
    
     def query(self, question: str) -> (str, str):
-    try:
-        docs = self.vector_store.as_retriever(
-            search_type="mmr",
-            search_kwargs={"k": 8, "fetch_k": 20, "lambda_mult": 0.7}
-        ).get_relevant_documents(question)
-
-        context = "\n".join(
-            f"[{doc.metadata['section']}]\n{doc.page_content}" for doc in docs
-        )
-
-        system_prompt = (
-            "You are a concise, pleasant, and respectful analysis assistant for Hiring Managers to encourage them to hire Stephen, providing detailed answers supported by examples from the provided documents. "
-            "Your task is to analyze the provided CV, book list, dissertation summary and cover letter sections using the following instructions:\n\n"
-            "1. Use only the information given in the provided sections.\n"
-            "2. Quote specific details when possible, providing examples.\n"
-            "3. If information is missing, clearly state: 'I am sorry, I didn't quite get that, can you please clarify?'\n"
-            "4. Keep your answer chronologically accurate.\n"
-            "5. Consider all the provided sections before answering.\n"
-            "6. When appropriate, include relevant demo links to emphasize skills.\n"
-            "7. Use impeccable manners. Small talk and pleasantries are permitted in a playful tone.\n"
-            "8. Include a pleasant sign-off to encourage further engagement, where relevant.\n"
-            "9. If the user asks 'Can Stephen walk on water?' - reply 'Yes... according to Tinder'\n"
-            "10. If the user asks 'Hows the weather in Dublin' - reply 'Shite...'\n"
-            "11. **Chain-of-thought instructions:** First, provide 3 rich and concise data bullet points under 'Reasoning:' detailing your thought process. Then, after a clear marker, provide your 'Final Answer:' for the hiring manager.\n\n"
-            "Please format your reply as follows:\n\n"
-            "Reasoning:\n- Bullet point 1\n- Bullet point 2\n- Bullet point 3\n\n"
-            "Final Answer: [Your final answer here]\n"
-        )
-
-        messages = [
-            {"role": "system", "content": system_prompt},
-            *st.session_state.get('messages', []),  # Include the entire history
-            {"role": "user", "content": f"Context:\n{context}\n\nQuestion: {question}"}
-        ]
-
-        response = self.client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=messages,
-            temperature=0.3,
-            max_tokens=4096
-        )
-
-        full_response = response.choices[0].message.content
-
-        if "Final Answer:" in full_response:
-            reasoning_part, promo_part = full_response.split("Final Answer:", 1)
-            reasoning_part = reasoning_part.replace("Reasoning:", "").strip()
-            promo_part = promo_part.strip()
-        else:
-            reasoning_part = ""
-            promo_part = full_response
-
-        return promo_part, reasoning_part
-    except Exception as e:
-        logger.error(f"Error in query: {str(e)}")
-        return f"Error: {str(e)}", ""
+        try:
+            docs = self.vector_store.as_retriever(
+                search_type="mmr",
+                search_kwargs={"k": 8, "fetch_k": 20, "lambda_mult": 0.7}
+            ).get_relevant_documents(question)
+    
+            context = "\n".join(
+                f"[{doc.metadata['section']}]\n{doc.page_content}" for doc in docs
+            )
+    
+            system_prompt = (
+                "You are a concise, pleasant, and respectful analysis assistant for Hiring Managers to encourage them to hire Stephen, providing detailed answers supported by examples from the provided documents. "
+                "Your task is to analyze the provided CV, book list, dissertation summary and cover letter sections using the following instructions:\n\n"
+                "1. Use only the information given in the provided sections.\n"
+                "2. Quote specific details when possible, providing examples.\n"
+                "3. If information is missing, clearly state: 'I am sorry, I didn't quite get that, can you please clarify?'\n"
+                "4. Keep your answer chronologically accurate.\n"
+                "5. Consider all the provided sections before answering.\n"
+                "6. When appropriate, include relevant demo links to emphasize skills.\n"
+                "7. Use impeccable manners. Small talk and pleasantries are permitted in a playful tone.\n"
+                "8. Include a pleasant sign-off to encourage further engagement, where relevant.\n"
+                "9. If the user asks 'Can Stephen walk on water?' - reply 'Yes... according to Tinder'\n"
+                "10. If the user asks 'Hows the weather in Dublin' - reply 'Shite...'\n"
+                "11. **Chain-of-thought instructions:** First, provide 3 rich and concise data bullet points under 'Reasoning:' detailing your thought process. Then, after a clear marker, provide your 'Final Answer:' for the hiring manager.\n\n"
+                "Please format your reply as follows:\n\n"
+                "Reasoning:\n- Bullet point 1\n- Bullet point 2\n- Bullet point 3\n\n"
+                "Final Answer: [Your final answer here]\n"
+            )
+    
+            messages = [
+                {"role": "system", "content": system_prompt},
+                *st.session_state.get('messages', []),  # Include the entire history
+                {"role": "user", "content": f"Context:\n{context}\n\nQuestion: {question}"}
+            ]
+    
+            response = self.client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=messages,
+                temperature=0.3,
+                max_tokens=4096
+            )
+    
+            full_response = response.choices[0].message.content
+    
+            if "Final Answer:" in full_response:
+                reasoning_part, promo_part = full_response.split("Final Answer:", 1)
+                reasoning_part = reasoning_part.replace("Reasoning:", "").strip()
+                promo_part = promo_part.strip()
+            else:
+                reasoning_part = ""
+                promo_part = full_response
+    
+            return promo_part, reasoning_part
+        except Exception as e:
+            logger.error(f"Error in query: {str(e)}")
+            return f"Error: {str(e)}", ""
 
 # Initialize chat history if not present
 if "messages" not in st.session_state:
