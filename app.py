@@ -54,8 +54,8 @@ def load_vector_store(embeddings):
 def optimize_query(raw_query: str, client: OpenAI) -> str:
     try:
         rewriting_prompt = (
-            "Rewrite the following query in a clear, structured, and detailed manner suited for "
-            "a hiring-analytics context. Provide any additional clarity or context if needed.\n\n"
+            "Rewrite the following query to be clear, structured, and detailed, as if it were being asked to a helpful assistant in a conversation. "
+            "a hiring-manager context. Provide any additional clarity or context if needed.\n\n"
             f"Query: {raw_query}"
         )
         response = client.chat.completions.create(
@@ -63,7 +63,7 @@ def optimize_query(raw_query: str, client: OpenAI) -> str:
             messages=[{"role": "system", "content": rewriting_prompt}],
             temperature=0.1,
             max_tokens=1000,
-            top_p=0.9 # Add your top_p value here
+            top_p=0.9 # 
         )
         optimized_query = response.choices[0].message.content.strip()
         logger.debug(f"Optimized query: {optimized_query}")
@@ -142,7 +142,7 @@ class CVQueryApp:
             response = self.client.chat.completions.create(
                 model="gpt-4o-mini",
                 messages=messages,
-                temperature=0.3,
+                temperature=0.2,
                 max_tokens=4096
             )
     
