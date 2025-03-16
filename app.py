@@ -189,10 +189,12 @@ with st.sidebar:
     st.markdown(
         """
         - "Can you infer an overview of technical and non-technical skills relating to his most recent role?"
+        - "Are there any recurring themes or patterns of skills or interests that emerge from reviewing all the provided documents?"
         - "What does Stephen's Goodreads book list reveal about his personal interests?"
         - "How's the weather in Dublin"
+        - "Based on the provided documents, what are some of the key technologies that Stephen has experience with?"
         - "Tell me about recent side projects and their implementation"
-        - "Are there recurring themes that indicate what drives his professional passion?"
+        - "Are there recurring themes that can be derived from the reading list?"
         - "Can Stephen walk on water?"
         """
     )
