@@ -1,7 +1,7 @@
 **Stephen's Meta App: AI-Powered Resume Explorer**
 ==================================================
 
-**APP:**[Live Profile App](https://resume-query-8b3a2410fcfb.herokuapp.com/)
+**APP:**[Live Demo](https://resume-query-8b3a2410fcfb.herokuapp.com/)
 
 * * * * *
 
