@@ -107,7 +107,7 @@ The **Pipeline and Workflow** section of the app is the backbone of its function
     -   User queries are rewritten using OpenAI's GPT-4o-mini to improve clarity, structure, and context.
     -   A **rewriting prompt** is used to guide the model:
 
-        Copy
+
 
         ```
         "Rewrite the following query to be clear, structured, and detailed, as if it were being asked to a helpful assistant in a hiring-manager context. Provide any additional clarity or context if needed."
@@ -177,10 +177,6 @@ The **Pipeline and Workflow** section of the app is the backbone of its function
     -   It helps users understand how the response was derived, building trust in the system.
 -   **Example Response**:
 
-    mipsasm
-
-    Copy
-
     ```
     Reasoning:
     - Stephen's CV highlights his expertise in Python and SQL.
@@ -219,10 +215,6 @@ The **Pipeline and Workflow** section of the app is the backbone of its function
     -   Users can clear the chat history to start a new conversation.
     -   This is implemented using a Streamlit button:
 
-        python
-
-        RunCopy
-
         ```
         if st.button("🔥 Clear Chat History"):
             st.session_state.messages = []
@@ -260,8 +252,6 @@ By combining **FAISS**, **OpenAI GPT-4o-mini**, and **Streamlit**, the app creat
 
 -   **Purpose**: Enhances transparency by detailing the model's thought process.
 -   **Format**:
-
-    Copy
 
     ```
     Reasoning:
@@ -307,10 +297,6 @@ By combining **FAISS**, **OpenAI GPT-4o-mini**, and **Streamlit**, the app creat
 
 1.  Clone the repository:
 
-    bash
-
-    Copy
-
     ```
     git clone https://github.com/StephenJudeD/resume--rag-llm-stream.git
     cd resume--rag-llm-stream
@@ -319,9 +305,6 @@ By combining **FAISS**, **OpenAI GPT-4o-mini**, and **Streamlit**, the app creat
 
 2.  Create a virtual environment:
 
-    bash
-
-    Copy
 
     ```
     python -m venv venv
@@ -331,10 +314,6 @@ By combining **FAISS**, **OpenAI GPT-4o-mini**, and **Streamlit**, the app creat
 
 3.  Install dependencies:
 
-    bash
-
-    Copy
-
     ```
     pip install -r requirements.txt
 
@@ -342,9 +321,6 @@ By combining **FAISS**, **OpenAI GPT-4o-mini**, and **Streamlit**, the app creat
 
 4.  Set environment variables:
 
-    bash
-
-    Copy
 
     ```
     export OPENAI_API_KEY='your_openai_api_key'
@@ -354,10 +330,6 @@ By combining **FAISS**, **OpenAI GPT-4o-mini**, and **Streamlit**, the app creat
     ```
 
 5.  Run the app:
-
-    bash
-
-    Copy
 
     ```
     streamlit run app.py
