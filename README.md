@@ -1,7 +1,7 @@
 **Stephen's Meta App: AI-Powered Resume Explorer**
 ==================================================
 
-**APP:** [StephenJudeD/resume--rag-llm-stream]([https://resume-query-8b3a2410fcfb.herokuapp.com/])
+**APP:**[Live App - maybe](https://resume-query-8b3a2410fcfb.herokuapp.com/)
 
 * * * * *
 
