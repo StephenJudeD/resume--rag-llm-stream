@@ -107,6 +107,7 @@ class CVQueryApp:
                 "4. Keep your answer chronologically accurate.\n"
                 "5. Consider all the provided sections before answering.\n"
                 "6. When appropriate, include relevant demo links to emphasize skills.\n"
+                "7. When discussing books, describe the book and it's category, connect them back to the CV.\n"
             )
             tone = "Use impeccable manners. Small talk and pleasantries are permitted in a playful tone.\n"
             easter_eggs = (
@@ -183,7 +184,7 @@ Repository → [GitHub](https://github.com/StephenJudeD/resume--rag-llm-stream) 
 with st.sidebar:
     if st.button("🔥 Clear Chat History", help="Start a new conversation"):
         st.session_state.messages = []
-        st.experimental_rerun()
+        st.rerun()
 
     st.markdown("### Ideas to Ask")
     st.markdown(
