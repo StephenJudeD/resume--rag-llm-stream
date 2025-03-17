@@ -63,8 +63,8 @@ def optimize_query(raw_query: str, client: OpenAI) -> str:
         
         # Rewrite the query in a concise, conversational style
         rewriting_prompt = (
-            "Rewrite the following query to be clear, concise, and conversational, as if it were being asked to a helpful assistant. "
-            "Do not make it overly formal or verbose. Keep it brief and to the point.\n\n"
+            "Rewrite the following query to be clear, structured, and detailed, as if it were being asked to a helpful assistant in a conversation. "
+            "a hiring-manager context. Provide any additional clarity or context if needed, but keep the tone conversational and avoid making it a formal letter.\n\n"
             f"Query: {raw_query}"
         )
         response = client.chat.completions.create(
