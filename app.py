@@ -53,9 +53,18 @@ def load_vector_store(embeddings):
 # Pre-LLM Query Optimizer: Rewrites the raw query for improved clarity
 def optimize_query(raw_query: str, client: OpenAI) -> str:
     try:
+        # Check for Easter egg queries and return them unchanged
+        easter_eggs = {
+            "Can Stephen walk on water?": "Can Stephen walk on water?",
+            "How's the weather in Dublin?": "How's the weather in Dublin?"
+        }
+        if raw_query.strip() in easter_eggs:
+            return easter_eggs[raw_query.strip()]
+        
+        # Rewrite the query in a concise, conversational style
         rewriting_prompt = (
-            "Rewrite the following query to be clear, structured, and detailed, as if it were being asked to a helpful assistant in a conversation. "
-            "a hiring-manager context. Provide any additional clarity or context if needed.\n\n"
+            "Rewrite the following query to be clear, concise, and conversational, as if it were being asked to a helpful assistant. "
+            "Do not make it overly formal or verbose. Keep it brief and to the point.\n\n"
             f"Query: {raw_query}"
         )
         response = client.chat.completions.create(
@@ -63,7 +72,7 @@ def optimize_query(raw_query: str, client: OpenAI) -> str:
             messages=[{"role": "system", "content": rewriting_prompt}],
             temperature=0.1,
             max_tokens=1000,
-            top_p=0.9 # 
+            top_p=0.9
         )
         optimized_query = response.choices[0].message.content.strip()
         logger.debug(f"Optimized query: {optimized_query}")
