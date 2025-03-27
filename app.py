@@ -50,9 +50,15 @@ def load_vector_store(embeddings):
         logger.error("Error loading index. Verify downloaded files match FAISS requirements.")
         raise error
 
-# Pre-LLM Query Optimizer: Rewrites the raw query for improved clarity
 def optimize_query(raw_query: str, client: OpenAI) -> str:
     try:
+        # Define a list of casual keywords
+        casual_keywords = ["hi", "hello", "how are you", "hey"]
+        
+        # Check for casual greetings: if the query matches any casual keyword, bypass rewriting
+        if any(keyword in raw_query.strip().lower() for keyword in casual_keywords):
+            return raw_query
+        
         # Check for Easter egg queries and return them unchanged
         easter_eggs = {
             "Can Stephen walk on water?": "Can Stephen walk on water?",
